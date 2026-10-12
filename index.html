@@ -705,10 +705,10 @@ canvas{display:block;}
     <canvas class="vineedge" id="vineR"></canvas>
     <canvas class="vineedge" id="vineB"></canvas>
     <h1 style="font-size:36px; letter-spacing:.06em; line-height:1.08;"><span class="triemblem" aria-hidden="true"></span><svg class="fdtitle" viewBox="0 0 640 124" role="img" aria-label="Triskele"><defs><linearGradient id="fdInlay" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d4d4d4"/><stop offset="8%" stop-color="#9a9a9a"/><stop offset="17%" stop-color="#c4c4c4"/><stop offset="26%" stop-color="#7d7d7d"/><stop offset="34%" stop-color="#b09030"/><stop offset="42%" stop-color="#f0d075"/><stop offset="50%" stop-color="#c9a13a"/><stop offset="58%" stop-color="#8f6f18"/><stop offset="66%" stop-color="#8a8a8a"/><stop offset="74%" stop-color="#c8c8c8"/><stop offset="82%" stop-color="#909090"/><stop offset="90%" stop-color="#c9a13a"/><stop offset="100%" stop-color="#f0d075"/></linearGradient><clipPath id="fdClip"><text x="320" y="94">TRISKELE</text></clipPath></defs><text x="320" y="94" fill="#f2e6c8">TRISKELE</text><g clip-path="url(#fdClip)"><text x="320" y="94" fill="none" stroke="url(#fdInlay)" stroke-width="15">TRISKELE</text><text x="320" y="94" fill="none" stroke="#f2e6c8" stroke-width="6.5">TRISKELE</text></g></svg></h1>
-    <p class="tag">It is Midsummer, and the Fae have begun to dance.</p>
+    <p class="tag">Can you shine brightest and become the High Fae?</p>
     <div class="rules" style="margin-bottom:12px; text-align:center;">
-      <b>OBJECTIVE:</b>
-      <p style="margin-top:4px; margin-bottom:0; font-size:13px;">Have the highest Radiance in the called Court.</p>
+      <b>THE GOAL</b>
+      <p style="margin-top:4px; margin-bottom:0; font-size:13px;">Hold the highest Radiance in the Called Court.</p>
     </div>
     <div style="margin-top:16px; display:flex; justify-content:center;">
       <div class="modecard" style="flex:1 1 260px; max-width:300px; border:1px solid var(--gold2); border-radius:6px; padding:15px 14px; background:rgba(0,0,0,.18);">
@@ -794,7 +794,7 @@ canvas{display:block;}
   <div id="dockhead"><span>YOUR HAND</span><button id="dockmin" title="Minimize">&ndash;</button></div>
   <div id="dockrow">
     <div class="col" id="dancerblock">
-      <div class="eyebrow">Glamours</div>
+      <div class="eyebrow">Fae</div>
       <div id="mydancers"></div>
     </div>
     <div class="col">
@@ -857,7 +857,7 @@ canvas{display:block;}
 </svg>
  
 <div id="legend" class="panel">
-  <div class="loghead"><h3>DANCE FAVORS</h3><button id="legmin" title="Minimize">–</button></div>
+  <div class="loghead"><h3>COURT FAVORS</h3><button id="legmin" title="Minimize">–</button></div>
   <div class="legrow" style="border-top:none">
     <span class="tname" style="color:#8fd0e8">RIVER DANCE</span><span class="tsub">Radiance favors · leads to the River Court</span>
     <div class="favline"><span class="favic"><svg><use href="#ic-swap"/></svg></span><span class="favtx">Swap your Radiance with a rival; you receive the card you could see on their stand.</span></div>
@@ -873,16 +873,16 @@ canvas{display:block;}
     <div class="favline"><span class="favic"><svg><use href="#ic-swap"/></svg></span><span class="favtx">Swap your Court with a rival; both of you see your new allegiance.</span></div>
     <div class="favline"><span class="favic"><svg><use href="#ic-eye"/></svg></span><span class="favtx">Look at a rival's Court.</span></div>
   </div>
-  <div class="legfoot">Every finished dance unveils a Wisp first. Then take <b>one</b> action: draw a <b>Faerie Magik</b> card, take one of that dance’s favors, or <b>Call a Court</b> you belong to once it holds six or more Wisps.</div>
+  <div class="legfoot">Every finished dance unveils a Wisp first. Then take <b>one</b> action: <b>Call a Court</b> you belong to once it holds six or more Wisps, take one of that dance’s Favors, or draw a <b>Faerie Magik</b> card.</div>
 </div>
-<button class="btn" id="legtoggle">Dance Favors</button>
+<button class="btn" id="legtoggle">Court Favors</button>
 <button class="btn danger" id="quitbtn" style="position:fixed; right:10px; top:10px; z-index:80; display:none; font-size:11px; padding:6px 10px;">Quit Game</button>
 <div id="gmenu">
   <div id="gmenutab" role="button" tabindex="0" aria-expanded="false"><span id="gmenudot"></span>Menu <span class="chev">▶</span></div>
   <div id="gmenulist">
     <button class="btn" id="gm-rulebook">Rulebook</button>
     <button class="btn" id="gm-magik">Faerie Magik</button>
-    <button class="btn" id="gm-favors">Dance Favors</button>
+    <button class="btn" id="gm-favors">Court Favors</button>
     <button class="btn" id="gm-trainlog">Training Log</button>
     <button class="btn" id="gm-zoom">Zoom</button>
     <button class="btn danger" id="gm-quit">Quit Game</button>
@@ -1714,12 +1714,12 @@ function courtSocketDeg(hid, i){
 function courtSocketR(i){ return i<SOCKET_ROW1 ? COURT_SOCKET_R : COURT_SOCKET_R2; }
 /* The two favors of the dance that leads to each Court, as icons. */
 const COURT_FAVORS = {
-  river:   [{icon:'swap', word:'SWAP', tip:'River Dance favor: swap your Radiance with a rival.'},
-            {icon:'eye',  word:'PEEK', tip:'River Dance favor: look at your own Radiance.'}],
-  forest:  [{icon:'lure', word:'LURE', tip:'Forest Dance favor: lure a Wisp into a different Court.'},
-            {icon:'snuff',word:'SNUFF', tip:'Forest Dance favor: snuff two Wisps, from any Courts.'}],
-  mountain:[{icon:'swap', word:'SWAP', tip:'Mountain Dance favor: swap your Court with a rival.'},
-            {icon:'eye',  word:'PEEK', tip:'Mountain Dance favor: look at a rival’s Court.'}],
+  river:   [{icon:'swap', word:'SWAP', tip:'River Favor: swap your Radiance with a rival.'},
+            {icon:'eye',  word:'PEEK', tip:'River Favor: look at your own Radiance.'}],
+  forest:  [{icon:'lure', word:'LURE', tip:'Forest Favor: lure a Wisp into a different Court.'},
+            {icon:'snuff',word:'SNUFF', tip:'Forest Favor: snuff two Wisps, from any Courts.'}],
+  mountain:[{icon:'swap', word:'SWAP', tip:'Mountain Favor: swap your Court with a rival.'},
+            {icon:'eye',  word:'PEEK', tip:'Mountain Favor: look at a rival’s Court.'}],
 };
 /* THE GOLDEN SPIRAL. The Triskele's triple spiral, cut from its art (its own
    printed ring left off) and laid in old gold: a smooth metallic sweep, a
@@ -2823,7 +2823,7 @@ function init3D(mode){
         let g=ph[0].object; while(g.parent && g.userData.pi===undefined) g=g.parent;
         const owner=G && G.players[g.userData.pi];
         if(owner){
-          tip.textContent = owner.i===MY_SEAT ? 'Your Glamour' : `${owner.name}\u2019s Glamour`;
+          tip.textContent = owner.i===MY_SEAT ? 'Your Fae' : `${owner.name}\u2019s Fae`;
           tip.style.display='block';
           tip.style.left=(e.clientX+14)+'px';
           tip.style.top=(e.clientY+12)+'px';
@@ -3831,8 +3831,8 @@ function localMoveChoice(owner, points, lockCi, opts){
   /* On a phone the long instruction wrapped into a block that covered the
      board. Touch gets a single short line; desktop keeps the full guidance. */
   $('#movemsg').innerHTML = COARSE
-    ? `Dance <b>${points}</b>: tap a Glamour, then a lit stone.`
-    : `Dance: <b>${points}</b> step(s). Click or tap <b>${owner.i===MY_SEAT ? (opts.single?'ONE of your Glamours':'a Glamour') : (opts.single? 'ONE of '+owner.name+'\u2019s Glamours' : 'one of '+owner.name+'\u2019s Glamours')}</b>: its reachable stones light up. Send it to one.`;
+    ? `Dance <b>${points}</b>: tap a Fae, then a lit stone.`
+    : `Dance: <b>${points}</b> step(s). Click or tap <b>${owner.i===MY_SEAT ? (opts.single?'ONE of your Fae':'a Fae') : (opts.single? 'ONE of '+owner.name+'\u2019s Fae' : 'one of '+owner.name+'\u2019s Fae')}</b>: its reachable stones light up. Send it to one.`;
   { const pk=$('#movepeekn'); if(pk) pk.textContent=points; }
   if(COARSE) dockMoveHud();
   $('#forfeit').textContent = 'Forfeit rest';
@@ -3936,9 +3936,9 @@ function renderHUD(){
     if(c.spent){
       chip.style.opacity=.45;
       chip.style.transform='rotate(90deg)';
-      chip.title='This Glamour completed a dance this turn: it re-enters next turn.';
+      chip.title='This Fae completed a dance this turn: it re-enters next turn.';
     } else {
-      chip.title='A Glamour waiting to enter the dance. Click it, then a lit stone.';
+      chip.title='A Fae waiting to enter the dance. Click it, then a lit stone.';
       chip.onpointerdown=()=>{ if(SELECT_DANCER) SELECT_DANCER(ci); };
     }
     roost.appendChild(chip);
@@ -3968,7 +3968,7 @@ function renderHUD(){
       </div>
       <div class="meta"><span data-runetip style="cursor:help; text-decoration:underline dotted rgba(201,182,224,.5); text-underline-offset:3px;">Runes <b>${p.hand.length}</b></span>${magikMeta}${
         p.cands.some(c=>!c.track)
-          ? `<span title="Glamours waiting to enter the dance" style="color:${p.color}">${p.cands.filter(c=>!c.track).map(c=>c.spent?'<span style="opacity:.4">\u2727</span>':'\u2727').join('')}</span>` : ''}</div>`
+          ? `<span title="Fae waiting to enter the dance" style="color:${p.color}">${p.cands.filter(c=>!c.track).map(c=>c.spent?'<span style="opacity:.4">\u2727</span>':'\u2727').join('')}</span>` : ''}</div>`
       + (isTurn? `<div class="turnnote">DANCING</div>` : '');
     const runeStr = p.hand.length? p.hand.slice().sort((a,b)=>a-b).join(', ') : 'none';
     attachTip(d.querySelector('[data-runetip]'), ()=>`Runes left to dance: ${runeStr}`);
@@ -3987,7 +3987,7 @@ function renderHUD(){
   mh.innerHTML =
     `<div style="position:absolute; left:0; right:0; bottom:2px; text-align:center; font-family:var(--disp); font-size:8px; letter-spacing:.08em; color:${me.declared?'#ffe9b0':'rgba(255,255,255,.92)'}; text-shadow:0 1px 2px rgba(0,0,0,.8); pointer-events:none;">${ptShort}${me.declared?' \u2726':''}</div>`
     + (canDeclare ? `<button id="declarebtn" style="position:absolute; left:50%; top:-12px; transform:translateX(-50%); z-index:5; font-family:var(--disp); font-size:9px; letter-spacing:.08em; padding:3px 8px; border-radius:4px; border:1px solid #d8b45a; background:#2a1f3d; color:#f0d98a; cursor:pointer; box-shadow:0 0 8px rgba(216,180,90,.5); white-space:nowrap;">\u2726 DECLARE</button>` : '');
-  mh.title = H.name+': your allegiance. '+(PATRON_NAME[me.patron]||'')+' supports you \u2014 '+patronText(me)
+  mh.title = H.name+': your Court. Your Royal Title: '+(PATRON_NAME[me.patron]||'')+' \u2014 '+patronText(me)
     + (me.declared ? ' (DECLARED: the gift is yours.)' : ' (Declare as the very first thing on your turn.)');
   if(canDeclare){ const db=mh.querySelector('#declarebtn'); if(db) db.onclick=(e)=>{ e.stopPropagation(); humanEvent({type:'declare'}); }; }
   const ms=$('#mystatus');
@@ -4213,7 +4213,7 @@ if(MOBILE_UI){
   /* ---- hover preview: the panel's own content, read-only, to the left ---- */
   const prev=$('#gmprev'), prevBody=$('#gmprevbody'), prevTitle=$('#gmprevtitle'), prevPop=$('#gmprevpop');
   let prevFor=null, prevTimer=0;
-  const TITLES={'gm-rulebook':'RULEBOOK','gm-magik':'FAERIE MAGIK','gm-favors':'DANCE FAVORS','gm-telling':'THE TELLING'};
+  const TITLES={'gm-rulebook':'RULEBOOK','gm-magik':'FAERIE MAGIK','gm-favors':'COURT FAVORS','gm-telling':'THE TELLING'};
   function panelContent(pid){
     const el=$('#'+pid); if(!el) return '';
     const body=el.querySelector('.rbbody, .logbody, #logbody') || el;
@@ -4381,52 +4381,54 @@ $('#magiklist').innerHTML = Object.entries(INTRIGUE_DEFS)
 const RULEBOOK_HTML = `
     <div class="glance"><b>YOUR TURN AT A GLANCE</b>
       <ul>
-        <li><i>(Optional)</i> <b>Declare your Patron</b>: at the start of your turn, turn your Court card face up (the Declare button on your card).</li>
+        <li><i>(Optional)</i> <b>Declare your Title</b>: at the start of your turn, before any Rune is chosen, turn your Court card face up (the Declare button on your card).</li>
         <li><b>1 · Play one Rune face up</b>, or skip your turn and reclaim every Rune you have played.</li>
-        <li><b>2 · Move your Glamours</b> and complete Dances. A completed dance places a Wisp in any Court, then you take <b>one</b> action: draw <b>Faerie Magik</b>, take a <b>Favor</b> of that dance, or <b>Call a Court</b> you belong to.</li>
+        <li><b>2 · Move your Fae</b> and complete Dances. A completed dance places a Wisp in any Court, then you take <b>one</b> action: <b>Call a Court</b> you belong to, take a <b>Favor</b> of that dance, or draw <b>Faerie Magik</b>.</li>
       </ul>
     </div>
+    <h4>LORE</h4>
+    <p><i>It is Midsummer, and the great Fae Courts are vulnerable to Magik. The Royal Fae send their retinues to dance upon the Mountain, the Forest, and the River, calling forth Wisps to swell their power. When enough Wisps have gathered, a Royal Fae of that Court may Call it together, and the most radiant among them becomes the High Fae of all the Lands!</i></p>
+    <p><i>Yet the night is thick with deception. Each Royal Fae sees how brightly the others shine, but cannot sense their own Radiance. Completed dances grant Faerie Magik and Court Favors, which can steal another’s radiance or swap Royal Titles. Under foot, Triskele markings stir to life, shifting the very ground they dance upon. Can you shine brightest and become the High Fae?</i></p>
     <h4>THE GOAL</h4>
     <p>Hold the <b>highest Radiance</b> in the <b>Called Court</b>.</p>
-    <p>Your <b>Court</b> is secret, but your <b>Radiance</b> card faces away from you. <b>Glamours</b> use <b>Runes</b> to complete <b>Dances</b> and place <b>Wisps</b> into Courts. When enough Wisps have gathered, <b>Call for a Court</b>. Then all is revealed, and the most radiant Fae joins the High Fae!</p>
+    <p>Your <b>Court</b> is secret; your <b>Radiance</b> faces away. <b>Fae</b> use <b>Runes</b> to complete <b>Dances</b>, placing <b>Wisps</b> into Courts. Enough Wisps allow a <b>Court</b> to be <b>called</b>. Then all is revealed, and the most radiant Royal Fae will become the High Fae!</p>
     <h4>SETUP</h4>
     <p>The Triskele sits at the centre, with its three Courts: the <b>Mountain</b>, the <b>Forest</b> and the <b>River</b>. From each Court runs its dance of <b>6 stones</b>, land side up; each dance’s <b>outermost</b> stone starts on its <b>Triskeled</b> side, and its <b>innermost</b> stone, ringed in gold beside its Court, is where the dance ends. The <b>__W__ Wisps</b> wait in the supply. The Court, Radiance and Faerie Magik decks are shuffled separately, each with a face-up discard pile.</p>
-    <p>Each player has 2 <b>Glamours</b> (their movement tokens, waiting in their reserve), <b>Runes 1–5</b> (their hand), and a card stand. Each is dealt <b>1 Court card</b> to look at and keep secret, and <b>1 Radiance card</b> placed facing away from them in their stand: everyone sees your number except you. A first player is chosen at random; play goes clockwise.</p>
-    <h4>PATRONS</h4>
-    <p>Each Court card bears a High Fae patron. At the start of any of your turns, you may declare your patron’s support by turning your Court card <b>permanently face up</b>; its power is then yours. Undeclared, you still belong to its Court, but without its power.</p>
+    <p>Each player takes 2 <b>Fae</b> (their movement tokens, waiting in their reserve), <b>Runes 1–5</b> (their hand), and a card stand. Each is dealt <b>1 Court card</b> to look at and keep secret, and <b>1 Radiance card</b> placed facing away from them in their stand: everyone sees your number except you. A first player is chosen at random; play goes clockwise.</p>
+    <h4>ROYAL TITLES</h4>
+    <p>Each Court card bears your Royal Title. At the start of any of your turns, you may declare your Title by turning your Court card <b>permanently face up</b>; its power is then yours. Undeclared, you still belong to its Court, but without its power.</p>
     <p><b>Queen</b>: your Radiance counts <b>+2</b> at the Call, and you <b>win ties</b>.<br>
     <b>King</b>: <b>+1 step</b> each turn you dance a Rune.<br>
     <b>Prince</b>: when you declare, <b>place 1 Wisp</b>. No Wisp can be <b>lured out</b> of your Court.<br>
     <b>Princess</b>: you <b>also belong</b> to the next Court: Mountain → Forest → River → Mountain.</p>
     <h4>YOUR TURN</h4>
-    <p><i>(Optional)</i> <b>Declare your Patron.</b></p>
+    <p><i>(Optional)</i> <b>Declare your Title.</b></p>
     <p><b>1 · Play one Rune face up.</b><br>
     &nbsp;&nbsp;Runes <b>1</b> and <b>2</b> allow movement <b>and</b> power; only land stones can flip.<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;<b>1</b>: flip a land stone to its Triskeled side, then move 1. Glamours on a flipped stone return to the player’s reserve.<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;<b>2</b>: move a Triskeled stone to the outermost spot of any dance, then move 2. Glamours on a moved Triskeled stone travel with it.<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<b>1</b>: flip a land stone to its Triskeled side, then move 1. Fae on a flipped stone return to the player’s reserve.<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<b>2</b>: move a Triskeled stone to the outermost spot of any dance, then move 2. Fae on a moved Triskeled stone travel with it.<br>
     &nbsp;&nbsp;Runes <b>3–5</b> allow movement <b>or</b> power.<br>
     &nbsp;&nbsp;&nbsp;&nbsp;<b>3</b>: move 3, or redraw your own Court or your own Radiance (a new Radiance goes into your stand unseen).<br>
     &nbsp;&nbsp;&nbsp;&nbsp;<b>4</b>: move 4, or make a rival redraw their Court or their Radiance.<br>
     &nbsp;&nbsp;&nbsp;&nbsp;<b>5</b>: move 5, or lure a Wisp into a different Court.<br>
     &nbsp;&nbsp;When all 5 Runes have been played, they return to your hand.<br>
     &nbsp;&nbsp;<i>Or</i> skip your turn and reclaim every Rune you have played (the Skip &amp; Reclaim button).</p>
-    <p><b>2 · Move your Glamours and complete Dances.</b><br>
-    &nbsp;&nbsp;A Rune’s movement may be split between your two Glamours.<br>
-    &nbsp;&nbsp;Each stone counts for 1 movement, and Glamours may share stones. A Glamour enters from your reserve onto any dance’s outermost stone, then moves inward. Click or tap a Glamour, then a lit stone.</p>
+    <p><b>2 · Move your Fae and complete Dances.</b><br>
+    &nbsp;&nbsp;A Rune’s movement may be split between your two Fae.<br>
+    &nbsp;&nbsp;Each stone counts for 1 movement, and Fae may share stones. A Fae enters from your reserve onto any dance’s outermost stone, then moves inward. Click or tap a Fae, then a lit stone.</p>
     <h4>COMPLETE A DANCE: PLACE WISP, TAKE 1 ACTION</h4>
     <p>Reaching the innermost stone <b>completes a dance</b>. Then:<br>
     &nbsp;&nbsp;<b>1 · Place 1 Wisp</b> from the supply in <b>any</b> Court.<br>
-    &nbsp;&nbsp;<b>2 · Choose 1</b>: draw a <b>Faerie Magik</b> card, <b>OR</b> take one of the two <b>Favors</b> belonging to the completed dance, <b>OR</b> <b>Call a Court</b> (below).</p>
-    <p>Return the Glamour to your reserve. Glamours may enter a dance again, but each Glamour can complete at most one dance per player turn (thus, two Glamours can complete two dances at most per turn). Unused steps are lost.</p>
+    &nbsp;&nbsp;<b>2 · Choose 1</b>: <b>Call a Court</b> (below), <b>OR</b> take one of the two <b>Favors</b> belonging to the completed dance, <b>OR</b> draw a <b>Faerie Magik</b> card.</p>
+    <p>Return the Fae to your reserve. Fae may enter a dance again, but each Fae can complete at most one dance per player turn (thus, two Fae can complete two dances at most per turn). Unused steps are lost.</p>
     <h4>END THE GAME: CALL A COURT</h4>
     <p>When a dance is complete and after a Wisp is placed in a Court, one option is to <b>Call a Court</b>. <b>You may only Call a Court you belong to.</b></p>
     <p>&#9670; Once <b>__Q__ Wisps</b> have gathered in a Court, a player may choose to <b>Call</b> this Court after a dance completion.<br>
     &#9670; The <b>__C__th Wisp</b> placed in or moved into a Court <b>forces</b> a Call at once.<br>
     &#9670; <b>Faerie Magik</b> may interrupt a Call by luring or snuffing a Wisp, lowering the Court below the number that triggered the Call. Play continues.</p>
     <p><i>When a Call holds, everyone reveals their Court and Radiance:</i><br>
-    <b>The Fae with the highest Radiance belonging to the Called Court wins, and joins the High Fae!</b></p>
-    <p class="small" style="color:var(--ink2);">If the __C__th Wisp forces a Call in a Court that <b>nobody belongs to</b>, the Wisps there drop back to <b>__F__</b>, and play continues.</p>
-    <h4>THE FAVORS</h4>
+    <b>The Royal Fae with the highest Radiance belonging to the Called Court wins, and becomes the High Fae!</b></p>
+    <h4>COURT FAVORS</h4>
     <p>When a dance is complete and after a Wisp is placed in a Court, one option is to take one <b>Favor</b> of that dance. <i>Note:</i> swapped Courts retain declared or undeclared status.</p>
     <p><b>River</b>: swap Radiance with a rival · peek at your own Radiance<br>
     <b>Forest</b>: lure a Wisp to another Court · snuff two Wisps<br>
@@ -4439,6 +4441,16 @@ const RULEBOOK_HTML = `
     <b>Wisp-Call</b> ×2: place a Wisp in a Court.<br>
     <b>Snuff Out</b> ×2: remove a Wisp from a Court.<br>
     <b>Scrying Pool</b> ×2: reveal your own Radiance or another player’s Court (only you see it).</p>
+    <h4>FAQ</h4>
+    <p><b>1 · When can I declare my Title?</b><br>Only at the start of your turn, before any Runes are chosen.</p>
+    <p><b>2 · Does an undeclared Title count when a Court is Called?</b><br>No. Undeclared Titles have no power, but you still belong to the Court.</p>
+    <p><b>3 · What happens to my Title if Courts are swapped?</b><br>You take the other card as it is: if it was declared, you now hold a declared Title.</p>
+    <p><b>4 · Can I Call a Court I don’t belong to?</b><br>No. <i>Note:</i> a declared Princess belongs to two Courts and may Call either.</p>
+    <p><b>5 · Can Faerie Magik stop a Call?</b><br>Yes. Luring or snuffing a Wisp can drop the Court below the number needed to Call, and play continues. Cold Iron can cancel that card.</p>
+    <p><b>6 · Does the Prince stop Snuff?</b><br>No. A declared Prince stops Wisps being lured out of his Court, but they can still be snuffed.</p>
+    <p><b>7 · A deck has run out. What happens?</b><br>No decks (Radiance, Court, Faerie Magik) are ever reshuffled. Once depleted, they remain so.</p>
+    <p><b>8 · Can one Fae complete two dances in a turn?</b><br>No. Each Fae can complete one dance per turn, so your two Fae can complete two. Each completion gives its own Wisp + Action (do each completion in order: Wisp + Action, then the second Wisp + Action).</p>
+    <p><b>9 · What if the __C__th Wisp forces a Call and no one belongs to that Court?</b><br>The Call fails, and that Court is brought down to __F__ Wisps.</p>
     <p class="small" style="color:var(--ink2);"><b>On screen</b>, when a rival’s move gives you a chance to answer with a card (Cold Iron, Blight, or a card that can interrupt a Call), play pauses and a dialog asks you. Hover any card for its text.</p>`;
 
  
@@ -4571,7 +4583,7 @@ function applyFlip(actor, tr, k){
   st.c = true;
   const victims = tumbleFae(tr, k);
   log(`${fmtP(actor)} flips stone ${k} of the <b>${tr}</b> to its <b>Triskeled</b> side.`);
-  victims.forEach(q=>log(`The stone turns, and ${fmtPs(q)} Glamour returns to their reserve!`, 'alert'));
+  victims.forEach(q=>log(`The stone turns, and ${fmtPs(q)} Fae returns to their reserve!`, 'alert'));
   syncBoard(); renderHUD();
   return true;
 }
@@ -4601,7 +4613,7 @@ async function ferryConjured(actor, fromTr, k, toTr){
   G.players.forEach(q=>q.cands.forEach(c=>{
     if(c._ferry){ c.track=toTr; c.steps=1; delete c._ferry; if(q!==actor) q._stoneBurns=(q._stoneBurns||0)+1; }
   }));
-  log(`${fmtP(actor)} moves a Triskeled stone to the outer end of the <b>${toTr}</b>${carried?', carrying its Glamour'+(carried>1?'s':'')+' along':''}.`);
+  log(`${fmtP(actor)} moves a Triskeled stone to the outer end of the <b>${toTr}</b>${carried?', carrying its Fae along':''}.`);
   syncBoard(); renderHUD();
   // A moved stone can leave a dancer standing on what is NOW the final stone
   // (the track shrank beneath them, or the insertion pushed them inward).
@@ -4616,7 +4628,7 @@ async function ferryConjured(actor, fromTr, k, toTr){
   for(const q of clockwiseFrom(G.players[G.turn], true)){
     for(const c of q.cands){
       if(c.track && c.steps>=trackLen(c.track)){
-        log(`The stones shift: ${fmtP(q)}’s Glamour stands upon the final stone: the <b>${c.track}</b> completes!`, 'alert');
+        log(`The stones shift: ${fmtP(q)}’s Fae stands upon the final stone: the <b>${c.track}</b> completes!`, 'alert');
         await trackComplete(q, q, c);
       }
     }
@@ -4902,7 +4914,7 @@ async function allocateHuman(actor, owner, points, opts={}){
     if(opts.single) lockCi=res.ci;   // all remaining steps stay with this dancer
     syncBoard();
     if(c.steps>=trackLen(c.track)){
-      log(`${fmtPs(owner)} Glamour completes the <b>${c.track}</b>!`);
+      log(`${fmtPs(owner)} Fae completes the <b>${c.track}</b>!`);
       await trackComplete(owner, actor, c);
     }
   }
@@ -4934,7 +4946,7 @@ async function allocate(actor, owner, points, opts={}){
     if(opts.single) lockCi=v.ci;
     syncBoard();
     if(c.steps>=trackLen(c.track)){
-      log(`${fmtPs(owner)} Glamour completes the <b>${c.track}</b>!`);
+      log(`${fmtPs(owner)} Fae completes the <b>${c.track}</b>!`);
       await trackComplete(owner, actor, c);
     }
     points--;
@@ -4950,7 +4962,7 @@ async function trackComplete(owner, actor, cand){
   const track=cand.track;
   cand.track=null; cand.steps=0;
   cand.spent=true;   // it has danced its dance: it may dance again, but not complete
-  log(`${fmtPs(owner)} Glamour returns to the reserve: it may dance again this turn, but it cannot complete another dance.`, 'sys');
+  log(`${fmtPs(owner)} Fae returns to the reserve: it may dance again this turn, but it cannot complete another dance.`, 'sys');
   syncBoard();
   const plagued=await plagueWindow(actor);
   if(plagued){
@@ -5088,12 +5100,12 @@ async function humanKingdomAction(p, track){
   opts.push(...(per[track]||[]));
   /* You may only Call a Court you belong to (a declared Princess: either of hers). */
   housesAtQuorum().filter(h=>belongsToCourt(p, h.id)).forEach(h=>opts.push({label:`✦ CALL A COURT: ${h.name}`, cls:'warn',
-    sub:`${G.nobles[h.id]} Wisps. All Fae reveal; the highest Radiance belonging to this Court joins the High Fae.`, value:{call:h.id}}));
+    sub:`${G.nobles[h.id]} Wisps. All Royal Fae reveal; the highest Radiance belonging to this Court becomes the High Fae.`, value:{call:h.id}}));
   housesAtQuorum().filter(h=>!belongsToCourt(p, h.id)).forEach(h=>opts.push({label:`Call the ${h.name}`, cls:'passopt',
     sub:`${G.nobles[h.id]} Wisps, but you do not belong to this Court: you may only Call a Court you belong to.`, value:null, disabled:true}));
   opts.push({label:'Pass', sub:'Take no action.', value:'pass'});
   const deckNote = left ? '' : ' <i>The Faerie Magik deck is spent.</i>';
-  const v=await seatChoose(p, `${track} complete`, `Your dance is complete. Take <b>one</b> action: draw Faerie Magik, take one of the ${track}’s Favors, or Call a Court you belong to once it holds ${quorum()} or more Wisps.`+deckNote, opts);
+  const v=await seatChoose(p, `${track} complete`, `Your dance is complete. Take <b>one</b> action: Call a Court you belong to once it holds ${quorum()} or more Wisps, take one of the ${track}’s Favors, or draw Faerie Magik.`+deckNote, opts);
   if(v==null || v==='pass') return;   // null: expired/failed choice — the action lapses
   if(v.call) return callForThrone(v.call, p, false);
   await ACTIONS[v](p);
@@ -5205,8 +5217,8 @@ const ACTIONS={
     p.declared=bDec; t.declared=aDec;        // a declared card remains declared for its new player
     p.knownHouses[t.i]=a; t.knownHouses[p.i]=b;
     p.knownPatrons[t.i]=aPt; t.knownPatrons[p.i]=bPt;
-    logTo(p, `You now belong to the ${fmtH(b)}; ${PATRON_NAME[bPt]} supports you${bDec?' (the card arrives <b>declared</b>)':''}.`, 'sys');
-    logTo(t, `You now belong to the ${fmtH(a)}; ${PATRON_NAME[aPt]} supports you${aDec?' (the card arrives <b>declared</b>)':''}.`, 'sys');
+    logTo(p, `You now belong to the ${fmtH(b)}, and your Royal Title is ${PATRON_NAME[bPt]}${bDec?' (the card arrives <b>declared</b>)':''}.`, 'sys');
+    logTo(t, `You now belong to the ${fmtH(a)}, and your Royal Title is ${PATRON_NAME[aPt]}${aDec?' (the card arrives <b>declared</b>)':''}.`, 'sys');
     if(aDec||bDec) log(`A declared card changes hands: it remains declared for its new holder.`, 'sys');
     /* A swap is a public act: every Fae saw who traded with whom. So knowledge
        does not vanish here, it CHANGES HANDS. Whoever knew p held the Meadow
@@ -5227,7 +5239,7 @@ const ACTIONS={
       G.placeEvidence[t.i]=ev;
     }
     log(`${fmtP(p)} swaps Courts with ${fmtP(t)}.`);
-    await seatNotice(p, 'Court swapped', `You now belong to the <b>${HOUSE_BY_ID[p.house].name}</b>, favored by <b>${PATRON_NAME[p.patron]}</b>${p.declared?' \u2014 the card arrived <b>declared</b>, and its gift is yours':''}. ${t.name} took your old card.`);
+    await seatNotice(p, 'Court swapped', `You now belong to the <b>${HOUSE_BY_ID[p.house].name}</b>, and your Royal Title is <b>${PATRON_NAME[p.patron]}</b>${p.declared?' \u2014 the card arrived <b>declared</b>, and its gift is yours':''}. ${t.name} took your old card.`);
     renderHUD(); syncBoard();
   },
   /* ---- what each favor announces beneath its Fae ---- */
@@ -5239,14 +5251,14 @@ const ACTIONS={
     flipStone:'flips a stone',     moveStone:'moves a stone'
   },
   async lookHouse(p){
-    const t=p.isHuman? await choosePlayer(p,'Look at a Court','Secretly learn a rival\u2019s Court, and the patron who supports them.') : p._target;
+    const t=p.isHuman? await choosePlayer(p,'Look at a Court','Secretly learn a rival\u2019s Court, and their Royal Title.') : p._target;
     if(!t) return;   // expired/failed choice — the favor lapses
     p.knownHouses[t.i]=t.house;
     p.knownPatrons[t.i]=t.patron;
     log(`${fmtP(p)} peeks at ${fmtPs(t)} Court card.`);
-    logTo(p, `You peek: ${fmtP(t)} belongs to the ${fmtH(t.house)}, and ${PATRON_NAME[t.patron]} supports them.`, 'sys');
+    logTo(p, `You peek: ${fmtP(t)} belongs to the ${fmtH(t.house)}, and their Royal Title is ${PATRON_NAME[t.patron]}.`, 'sys');
     if(p.isHuman){
-      await seatNotice(p, 'Allegiance glimpsed', `${t.name} belongs to the <b>${HOUSE_BY_ID[t.house].name}</b>, and <b>${PATRON_NAME[t.patron]}</b> supports them. The card turns facedown again: hold it in memory.`);
+      await seatNotice(p, 'Allegiance glimpsed', `${t.name} belongs to the <b>${HOUSE_BY_ID[t.house].name}</b>, and their Royal Title is <b>${PATRON_NAME[t.patron]}</b>. The card turns facedown again: hold it in memory.`);
     }
     renderHUD();
   },
@@ -5513,7 +5525,7 @@ async function playActiveIntrigue(p, name){
       if(p.isHuman){
         mode=await seatChoose(p, 'Scrying Pool', 'What does the still water show?', [
           {label:'Your own Radiance', sub:'Learn your number at last.', value:'self'},
-          {label:'A rival’s Court card', sub:'See their Court, and the patron who supports them.', value:'court'},
+          {label:'A rival’s Court card', sub:'See their Court, and their Royal Title.', value:'court'},
         ]);
         if(mode==null) mode='self';   // an expired choice defaults to the gentler gaze
         if(mode==='court'){
@@ -5535,8 +5547,8 @@ async function playActiveIntrigue(p, name){
         p.knownHouses[target.i]=target.house;
         p.knownPatrons[target.i]=target.patron;
         log(`${fmtP(p)} gazes into the pool at ${fmtP(target)}’s Court.`);
-        logTo(p, `The pool shows ${fmtP(target)}’s card: the ${fmtH(target.house)}, and ${PATRON_NAME[target.patron]} supports them.`, 'sys');
-        if(p.isHuman) await seatNotice(p, 'Scrying Pool', `The water stills: ${target.name} belongs to the <b>${HOUSE_BY_ID[target.house].name}</b>, and <b>${PATRON_NAME[target.patron]}</b> supports them. The card turns facedown again: hold it in memory.`);
+        logTo(p, `The pool shows ${fmtP(target)}’s card: the ${fmtH(target.house)}, and their Royal Title is ${PATRON_NAME[target.patron]}.`, 'sys');
+        if(p.isHuman) await seatNotice(p, 'Scrying Pool', `The water stills: ${target.name} belongs to the <b>${HOUSE_BY_ID[target.house].name}</b>, and their Royal Title is <b>${PATRON_NAME[target.patron]}</b>. The card turns facedown again: hold it in memory.`);
       } else {
         p.knownStatus=p.status;
         logTo(p, `The scrying pool shows your Radiance: it is <b>${p.status}</b>.`, 'sys');
@@ -5654,7 +5666,7 @@ async function callForThroneInner(houseId, caller, isCoup){
   }
   if(isCoup && !G.players.some(p=>belongsToCourt(p, houseId))){
     G.nobles[houseId] = quorum()-1;
-    log(`No Fae belongs to the ${fmtH(houseId)}: the Call finds no one, and <b>the gathered light scatters</b> (${quorum()-1} Wisps remain).`, 'alert');
+    log(`No Royal Fae belongs to the ${fmtH(houseId)}: the Call finds no one, and <b>the gathered light scatters</b> (${quorum()-1} Wisps remain).`, 'alert');
     banner('THE CALL FADES');
     syncBoard(); renderHUD();
     return;   // the dance goes on
@@ -5679,10 +5691,10 @@ async function callForThroneInner(houseId, caller, isCoup){
      contenders.some(c=>c!==winner && c.status>=winner.status))
     log(`The Queen\u2019s light crowns ${fmtP(winner)}: her gift carries the Call.`, 'alert');
   if(winner && winner.declared && winner.patron==='princess' && winner.house!==houseId)
-    log(`The Princess\u2019s support reaches across the Courts: ${fmtP(winner)} wins from the ${fmtH(winner.house)}.`, 'alert');
+    log(`The Princess\u2019s Title reaches across the Courts: ${fmtP(winner)} wins from the ${fmtH(winner.house)}.`, 'alert');
   if(winner) log(`${fmtP(winner)} holds the highest Radiance in the ${fmtH(houseId)} and wins the Call.`, 'alert');
   $('#revsub').innerHTML = `${isCoup?'The Court could hold no more: the':'The'} <b style="color:${HOUSE_BY_ID[houseId].css}">${HOUSE_BY_ID[houseId].name}</b> is Called. All Courts and Radiance are revealed.` +
-    (winner? '' : '<br><b>No Fae belonged to this Court: no one wins the Call.</b>');
+    (winner? '' : '<br><b>No Royal Fae belonged to this Court: no one wins the Call.</b>');
   const rows=$('#revrows'); rows.innerHTML='';
   [...G.players].sort((a,b)=>effRad(b)-effRad(a)).forEach(p=>{
     const h=HOUSE_BY_ID[p.house];
@@ -5696,7 +5708,7 @@ async function callForThroneInner(houseId, caller, isCoup){
       <span class="st">${p.status}${eff!==p.status?`<span style="font-size:11px; color:var(--gold);">+${eff-p.status}</span>`:''}</span>`;
     rows.appendChild(r);
   });
-  $('#revtitle').textContent = winner ? (winner.isHuman? 'YOU JOIN THE HIGH FAE' : `${winner.name.toUpperCase()} JOINS THE HIGH FAE`) : 'NO ONE WINS THE CALL';
+  $('#revtitle').textContent = winner ? (winner.isHuman? 'YOU BECOME THE HIGH FAE' : `${winner.name.toUpperCase()} BECOMES THE HIGH FAE`) : 'NO ONE WINS THE CALL';
 
   if(TUT.staged && typeof tutRevealCaption==='function') tutRevealCaption(houseId, caller, winner);
   $('#reveal').style.display='flex';
@@ -5720,7 +5732,7 @@ async function callForThroneInner(houseId, caller, isCoup){
    normal placement rules (reaction window, and it can force a Call). */
 async function doDeclare(p){
   p.declared=true;
-  log(`${fmtP(p)} <b>declare${p.name==='You'?'':'s'}</b>: ${fmtPatron(p)} supports ${p.name==='You'?'you':'them'}!`, 'alert');
+  log(`${fmtP(p)} <b>declare${p.name==='You'?'':'s'}</b> ${p.name==='You'?'your':'their'} Royal Title: ${fmtPatron(p)}!`, 'alert');
   banner(`${p.i===MY_SEAT?'YOU DECLARE':p.name.toUpperCase()+' DECLARES'}`);
   renderHUD(); syncBoard();
   STAT('declare', {p:p.i, patron:p.patron});
@@ -5826,7 +5838,7 @@ async function humanTurn(p){
           // Mandatory move of a conjured stone (outer end, carries riders). Cancel = keep the rune.
           while(true){
             const srcPick = await seatPickStone(p, 
-              "<b>Move a Triskeled stone, then move 2</b>: click a Triskeled stone (its Glamours ride along).",
+              "<b>Move a Triskeled stone, then move 2</b>: click a Triskeled stone (its Fae ride along).",
               ud => G.steps[ud.track][ud.step-1].c
             );
             if(!srcPick){ ferry='cancel'; break; }
@@ -8095,10 +8107,10 @@ async function joinDance(){
        <input type="range" id="thrslider" min="6" max="10" step="1" value="${CALL_AT}" oninput="thrReadout(this.value)">
        <div class="thrticks"><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
        <div id="thrread"></div></div>
-     How many Fae at the dance? (you + AI rivals)`,
-    [ {label:'3 Fae', value:3},
-      {label:'4 Fae', value:4},
-      {label:'5 Fae', value:5},
+     How many Royal Fae at the dance? (you + AI rivals)`,
+    [ {label:'3 Royal Fae', value:3},
+      {label:'4 Royal Fae', value:4},
+      {label:'5 Royal Fae', value:5},
       {label:'Back',  value:null, cls:'passopt'} ]);
   if(!n) return;
   { const sl=document.getElementById('thrslider'); setCallThreshold(sl ? sl.value : CALL_AT); }
@@ -10123,7 +10135,7 @@ function tutCardSteps(me){
         return fr ? `<b>${fr.p.name}</b> shows a <b>${fr.p.status}</b>. That is their Radiance. Every rival’s Radiance faces you.`
                   : `Every rival’s Radiance faces you.`; })() },
     { target:()=>$('#myhouse'), title:'Your Court: secret',
-      body:`You belong to the ${fmtH(me.house)}. Only you know it.<p></p>The card also shows a <b>Patron</b>, explained at the end of the tour.` },
+      body:`You belong to the ${fmtH(me.house)}. Only you know it.<p></p>The card also shows your <b>Royal Title</b>, explained at the end of the tour.` },
     { target:()=>tutAllStandsSpot(), title:'Rivals’ Courts: hidden',
       body:`Each rival belongs to a Court too. You can’t see which. Some may share yours.` },
     { title:'The goal',
@@ -10140,10 +10152,10 @@ function tutBoardSteps(){
 }
 function tutTurnSteps(){
   return [
-    { target:()=>$('#dancerblock'), title:'Your two Glamours',
+    { target:()=>$('#dancerblock'), title:'Your two Fae',
       body:`Your movers. Entering a dance onto its outermost stone costs <b>1 step</b>. Each further step moves one stone inward.` },
     { target:()=>$('#hand'), title:'Runes',
-      body:`Each turn, <b>play one Rune</b>. Its number is how many steps you get. You may split them between your Glamours.<p></p>Played Runes return when all five are used, or skip a turn to reclaim them.<p></p>Runes also have powers, explained at the end of the tour.`, next:'Try it →' },
+      body:`Each turn, <b>play one Rune</b>. Its number is how many steps you get. You may split them between your Fae.<p></p>Played Runes return when all five are used, or skip a turn to reclaim them.<p></p>Runes also have powers, explained at the end of the tour.`, next:'Try it →' },
   ];
 }
 async function tutDoMove(me){
@@ -10155,27 +10167,27 @@ async function tutDoMove(me){
   if(TUT.skip) return;
   me.hand.splice(me.hand.indexOf(4),1); me.discard.push(4);
   log(`${fmtP(me)} plays a <b>4</b>.`); renderHUD();
-  const close2=tutHint('Move 4 steps', 'Click a <b>Glamour</b>, then a <b>lit stone</b>.');
+  const close2=tutHint('Move 4 steps', 'Click a <b>Fae</b>, then a <b>lit stone</b>.');
   await allocateHuman(me, me, 4, {noForfeit:true});
   close2();
 }
 function tutCompleteSteps(){
   return [
     { target:()=>boardSpot(BOARD_R), title:'Completing a Dance',
-      body:`When a Glamour reaches the innermost stone:<br><b>1.</b> Place a <b>Wisp</b> in <b>any</b> Court.<br><b>2.</b> Choose one: draw <b>Faerie Magik</b>, take a <b>Favor</b> of that dance, or <b>Call a Court</b>.<p></p>The Glamour returns to your reserve.` },
+      body:`When a Fae reaches the innermost stone:<br><b>1.</b> Place a <b>Wisp</b> in <b>any</b> Court.<br><b>2.</b> Choose one: <b>Call a Court</b>, take a <b>Favor</b> of that dance, or draw <b>Faerie Magik</b>.<p></p>The Fae returns to your reserve.` },
     { target:()=>boardSpot(R_TRI+.4), title:'Calling a Court',
       body:`At <b>${quorum()} Wisps</b> a Court may be Called, but only by a player who belongs to it. The <b>${coupAt()}th</b> Wisp forces a Call.<p></p>Call when you think your Radiance is the highest in your Court.` },
   ];
 }
 function tutExtraSteps(){
   return [
-    { target:()=>$('#myhouse'), title:'Patrons',
-      body:`At the start of a turn you may <b>declare</b> your Patron: turn your Court card face up for good. You gain its power, and everyone sees your Court.<p></p><b>Queen</b>: +2 Radiance at the Call; wins ties.<br><b>King</b>: +1 step each turn you dance a Rune.<br><b>Prince</b>: place 1 Wisp when you declare; no Wisp can be lured out of your Court.<br><b>Princess</b>: also belongs to the next Court (Mountain → Forest → River → Mountain).` },
+    { target:()=>$('#myhouse'), title:'Royal Titles',
+      body:`At the start of a turn you may <b>declare</b> your Title, before any Rune is chosen: turn your Court card face up for good. You gain its power, and everyone sees your Court.<p></p><b>Queen</b>: +2 Radiance at the Call; wins ties.<br><b>King</b>: +1 step each turn you dance a Rune.<br><b>Prince</b>: place 1 Wisp when you declare; no Wisp can be lured out of your Court.<br><b>Princess</b>: also belongs to the next Court (Mountain → Forest → River → Mountain).` },
     { target:()=>tutStoneSpot(st=>st.c), title:'Stones',
       body:`Every stone has two sides: <b>land</b> and <b>Triskeled</b> (the gold spiral). Each dance begins with its <b>outermost</b> stone Triskeled.<p></p>Only Triskeled stones can move. Moving one to the outer end of another dance makes the first dance <b>shorter</b> and the second <b>longer</b>.<p></p>A Triskeled stone never flips back.` },
     { target:()=>$('#hand'), title:'Rune powers',
-      body:`<b>1</b>: flip a land stone to its Triskeled side (Glamours on it return to reserve), then move 1.<br><b>2</b>: move a Triskeled stone to the outer end of any dance (Glamours on it ride along), then move 2.<br><b>3</b>: move 3, <i>or</i> redraw your own Court or Radiance.<br><b>4</b>: move 4, <i>or</i> make a rival redraw their Court or Radiance.<br><b>5</b>: move 5, <i>or</i> lure a Wisp to another Court.` },
-    { target:()=>boardSpot(BOARD_R), title:'Favors',
+      body:`<b>1</b>: flip a land stone to its Triskeled side (Fae on it return to reserve), then move 1.<br><b>2</b>: move a Triskeled stone to the outer end of any dance (Fae on it ride along), then move 2.<br><b>3</b>: move 3, <i>or</i> redraw your own Court or Radiance.<br><b>4</b>: move 4, <i>or</i> make a rival redraw their Court or Radiance.<br><b>5</b>: move 5, <i>or</i> lure a Wisp to another Court.` },
+    { target:()=>boardSpot(BOARD_R), title:'Court Favors',
       body:`Each dance offers two Favors, one of which you may take on completing it:<br><b>River</b>: swap Radiance with a rival, or peek at your own.<br><b>Forest</b>: lure a Wisp to another Court, or snuff two Wisps.<br><b>Mountain</b>: swap Courts with a rival, or peek at a rival’s Court.` },
     { target:()=>$('#intrcol'), title:'Faerie Magik',
       body:`Secret cards, drawn as a completion reward. Most can be played anytime, even on a rival’s turn: add, move or remove a Wisp, peek at a hidden card, or cancel another Magik. Hover a card to read it.`, next:'Play a real game' },
@@ -10200,7 +10212,7 @@ async function tutWinningTurn(){
   TUT.guide={court, lock:null};
   TUT.staged=true;
   await tutModal('One turn from winning',
-    `A staged turn. You belong to the ${fmtH(court)}, which holds <b>${quorum()-1} Wisps</b>.<p></p>A Glamour of yours is <b>3 stones</b> from the end of the Forest Dance, and you hold a <b>3</b>.<p></p>Rivals show <b>3</b>, <b>7</b> and <b>9</b>. Should you Call?`,
+    `A staged turn. You belong to the ${fmtH(court)}, which holds <b>${quorum()-1} Wisps</b>.<p></p>A Fae of yours is <b>3 stones</b> from the end of the Forest Dance, and you hold a <b>3</b>.<p></p>Rivals show <b>3</b>, <b>7</b> and <b>9</b>. Should you Call?`,
     'Play it');
   if(TUT.skip) return;
   TUT.forceRune=3; renderHUD();
@@ -10211,7 +10223,7 @@ async function tutWinningTurn(){
   me.hand=[]; me.discard.push(3);
   log(`${fmtP(me)} plays a <b>3</b>.`); renderHUD();
   TUT.guide.lock={ci:0, track:dance, step:len};
-  const close2=tutHint('Finish the Dance', 'Click your Glamour on the board (or in your hand), then the <b>lit stone</b> at the end of the dance.');
+  const close2=tutHint('Finish the Dance', 'Click your Fae on the board (or in your hand), then the <b>lit stone</b> at the end of the dance.');
   TUT.afterMove=close2;
   try{ await allocate(me, me, 3); }
   catch(e){ if(!(e instanceof GameOver)) throw e; }
@@ -10250,7 +10262,7 @@ function tutStartRealGame(){
   newGame(4, 'dances');
   syncBoard(); renderHUD();
   banner('A REAL DANCE BEGINS');
-  log(`<b>A real game.</b> You belong to the ${fmtH(G.players[MY_SEAT].house)}. The Rulebook, Faerie Magik and Dance Favors are all in the Menu.`, 'sys');
+  log(`<b>A real game.</b> You belong to the ${fmtH(G.players[MY_SEAT].house)}. The Rulebook, Faerie Magik and Court Favors are all in the Menu.`, 'sys');
   gameLoop();
 }
 $('#tutskip').onclick=()=>{ TUT.skip=true; tutStartRealGame(); };
@@ -10282,7 +10294,7 @@ async function runTutorial(){
     const more=await choose('That’s the game',
       `<b>Remember the goal:</b> when a Court is Called, the <b>highest Radiance</b> among its players wins. Everyone sees your Radiance but you.`,
       [{label:'Play a real game', value:false},
-       {label:'Going further', sub:'Patrons, Rune powers, Favors and Faerie Magik', value:true}]);
+       {label:'Going further', sub:'Royal Titles, Rune powers, Court Favors and Faerie Magik', value:true}]);
     if(TUT.skip) return;
     if(more){
       /* a calm, fresh table for the extras: the Call's light put out */
@@ -10466,7 +10478,7 @@ const TLOG = (function(){
   const LEGEND = {
     row:  'k=kind, t=ply, s=seat, h=1 if a human chose it, pt=the actor’s patron at that instant, dcl=1 if declared, p=public state, z=hidden truth per seat, me=actor’s private state',
     end:  'how, court, coup, caller, w=winning seat, wp=the patron they HELD at the Call, wd=declared, ws=Radiance, via=1 if a Princess won from a neighbouring Court, pd=1 if the patron itself decided the Call. deal[] is what each seat was DEALT; reveal[] is what each seat HELD at the end.',
-    kinds:'turn=a turn begins (pt=the patron supporting that seat at that instant, dcl=declared, own=Wisps in the actor’s own Court), place=a Wisp is unveiled (c=court, free=1 if the court was freely chosen, bel=each rival’s belief about the actor’s Court), favor=a dance completed and its favor claimed (tr=track index), act=the favor spent (nm=action, fr/to=Courts, tg=target seat), magik=a Faerie Magik card played (nm=card), choice=a prompt answered (ti=title, o=labels offered, a=index taken, av=value), arm=turn action (kk=offered, a=taken), declare, redraw=own Court card exchanged (the patron goes with it), call (c=court, coup), callfade=a Call that lost its quorum. Every row of every kind carries pt and dcl where an actor is known, so turns and actions can be counted by the patron actually held rather than the one dealt.',
+    kinds:'turn=a turn begins (pt=the Royal Title held by that seat at that instant, dcl=declared, own=Wisps in the actor’s own Court), place=a Wisp is unveiled (c=court, free=1 if the court was freely chosen, bel=each rival’s belief about the actor’s Court), favor=a dance completed and its favor claimed (tr=track index), act=the favor spent (nm=action, fr/to=Courts, tg=target seat), magik=a Faerie Magik card played (nm=card), choice=a prompt answered (ti=title, o=labels offered, a=index taken, av=value), arm=turn action (kk=offered, a=taken), declare, redraw=own Court card exchanged (the patron goes with it), call (c=court, coup), callfade=a Call that lost its quorum. Every row of every kind carries pt and dcl where an actor is known, so turns and actions can be counted by the patron actually held rather than the one dealt.',
     p:    'q=quorum, cp=forced-Call count, nb=Wisps per Court, ev=placement evidence per seat per Court, ra=Radiance per seat (hidden only from its owner), dc=declared patron or null, cd=[track index,steps,spent] per Glamour, hn=Rune hand, mk=Magik card count, st=bitmask of Conjured Stones per track',
     z:    '[court, patron, radiance, declared, knownStatus] per seat, true at that instant',
     me:   'mk=Magik cards held, ds=discarded runes, ks=own Radiance if known, kh=Courts learned, kp=patrons glimpsed',
@@ -10552,7 +10564,7 @@ const TLOG = (function(){
       + '<button class="btn danger" id="tlogclear">Clear</button>'
       + '<button class="btn ghost" id="tlogclose" style="margin-left:auto;">Close</button>'
       + '</div>'
-      + '<div style="font-size:11px; line-height:1.5; color:var(--ink2,#9a9384); margin-top:14px;">The export contains every player’s hidden Court, Radiance, and patron. Keep it to yourself while a series is still running.</div>'
+      + '<div style="font-size:11px; line-height:1.5; color:var(--ink2,#9a9384); margin-top:14px;">The export contains every player’s hidden Court, Radiance, and Royal Title. Keep it to yourself while a series is still running.</div>'
       + '</div>';
     document.body.appendChild(panel);
     panel.addEventListener('click', e=>{ if(e.target===panel) closePanel(); });
