@@ -1282,6 +1282,18 @@ function visibleLeader(p){
   });
   return best;
 }
+/* IS THEIR CARD WORTH TAKING?  A Radiance swap trades CARDS, not standings.
+   visibleLeader() ranks rivals by effective Radiance, which counts a declared
+   Queen's +2, but a swap hands over only her printed number and gives her mine,
+   with her +2 still on top. Taking a Queen's 7 for my own 8 left me a 7 and
+   her a 10 (measured: it happened). So a swap aimed at a leader is made only
+   when the card itself beats what I believe I hold. */
+function fx(p){ const s=(typeof window!=='undefined')&&window.FIX_SEATS; return !s || s.has(p.i); }
+function cardWorthTaking(p, o){
+  if(!fx(p)) return true;
+  const mine = p.knownStatus!=null ? p.knownStatus : selfStatusMean(p);
+  return o.status > mine + 0.5;
+}
 function wispTools(p){ return p.intrigues.filter(x=>x==='Snuff Out'||x==='Wisp-Lure').length; }
 /* SEAT GATE FOR THE PATRON PERSONALITIES.
    Null in play: every seat plays its patron's own game. A measurement harness
@@ -4387,8 +4399,8 @@ const RULEBOOK_HTML = `
       </ul>
     </div>
     <h4>LORE</h4>
-    <p><i>It is Midsummer, and the great Fae Courts are vulnerable to Magik. The Royal Fae send their retinues to dance upon the Mountain, the Forest, and the River, calling forth Wisps to swell their power. When enough Wisps have gathered, a Royal Fae of that Court may Call it together, and the most radiant among them becomes the High Fae of all the Lands!</i></p>
-    <p><i>Yet the night is thick with deception. Each Royal Fae sees how brightly the others shine, but cannot sense their own Radiance. Completed dances grant Faerie Magik and Court Favors, which can steal another’s radiance or swap Royal Titles. Under foot, Triskele markings stir to life, shifting the very ground they dance upon. Can you shine brightest and become the High Fae?</i></p>
+    <p><i>It is Midsummer, and as the ancient Triskele symbols begin to glow, the great Fae Courts are vulnerable to Magik. The Royal Fae send their retinues to dance upon the Mountain, the Forest, and the River, transporting Wisps into the Courts through the Triskele’s power. When enough Wisps have gathered, a Royal Fae of that Court may Call it together, and the most radiant among them becomes the High Fae of all the Lands!</i></p>
+    <p><i>Yet the night is thick with deception. Each Royal Fae sees how brightly the others shine, but cannot sense their own Radiance. Completed dances grant Faerie Magik and Court Favors, which can steal another’s radiance or swap Royal Titles. Under foot, Triskele markings stir to life, shifting the very ground they dance upon. As the Midsummer dances reach their climax, can you shine brightest and become the High Fae?</i></p>
     <h4>THE GOAL</h4>
     <p>Hold the <b>highest Radiance</b> in the <b>Called Court</b>.</p>
     <p>Your <b>Court</b> is secret; your <b>Radiance</b> faces away. <b>Fae</b> use <b>Runes</b> to complete <b>Dances</b>, placing <b>Wisps</b> into Courts. Enough Wisps allow a <b>Court</b> to be <b>called</b>. Then all is revealed, and the most radiant Royal Fae will become the High Fae!</p>
@@ -6300,7 +6312,7 @@ function preferredTrack(p){
      it properly, by taking their number for my own. */
   {
     const rival = visibleLeader(p);
-    if(rival && G.nobles[p.house]>=quorum()-2 && TRACKS.includes('River Dance') &&
+    if(rival && cardWorthTaking(p, rival) && G.nobles[p.house]>=quorum()-2 && TRACKS.includes('River Dance') &&
        Math.random()<0.8) return 'River Dance';
   }
   /* DEFENSE FIRST: a rival Court within one Wisp of a Call, held by someone
@@ -6506,7 +6518,15 @@ function aiPickHouse(p){
      Become stronger first; the Wisps will still be there. */
   const myGuess = (p.knownStatus!=null ? p.knownStatus : selfStatusMean(p))
                 + (p.patron==='queen' ? QUEEN_BONUS : 0);
-  const blocked = knownStrongerShares(p) || rivalThreatIn(p, p.house) > myGuess + 0.5;
+  /* An INFERRED stronger rival used to block the home Court outright, even when
+     pWinCall (which already weighs every rival's chance of being here) put me
+     ahead. Measured over 160 four-Fae games: of the Wisps sent away from home
+     with my own odds at 45% or better, only a third had a stronger Fae really
+     standing in my Court; two in three were a Wisp thrown away. A KNOWN
+     stronger rival still blocks at any odds. */
+  const SHADE_PW = 0.45;
+  const blocked = knownStrongerShares(p) ||
+                  (rivalThreatIn(p, p.house) > myGuess + 0.5 && (!fx(p) || pwOwn < SHADE_PW));
   /* The same valuation that governs the Call has to govern the Wisp that
      arms it, or the AI builds toward a prize it has already decided not to
      take. Scaled by table size for the reason given at tableCallAdj. */
@@ -6574,7 +6594,7 @@ function aiPickHouse(p){
       /* At a crowded table a winnable Call is worth more than the same odds
          are worth at three, so the Wisps that build one are worth more too. */
       s -= tableCallAdj()*40;
-      const shaded = home ? blocked : (rivalThreatIn(p, h.id) > myGuess + 0.5);
+      const shaded = home ? blocked : (rivalThreatIn(p, h.id) > myGuess + 0.5 && (!fx(p) || pw < SHADE_PW));
       if(shaded) s -= 45;                       // feeding a Court a stronger rival shares
       /* THE QUEEN WANTS COMPANY. Every other Fae wants an empty Court, because
          a neighbour is a rival for the crown. Hers is the exact opposite: she
@@ -6778,7 +6798,7 @@ async function aiKingdomAction(p, track){
        and hands them mine. */
     {
       const rival = visibleLeader(p);
-      if(rival && G.nobles[p.house]>=quorum()-2 && Math.random()<0.85){
+      if(rival && cardWorthTaking(p, rival) && G.nobles[p.house]>=quorum()-2 && Math.random()<0.85){
         p._target = rival;
         return ACTIONS.swapStatus(p);
       }
