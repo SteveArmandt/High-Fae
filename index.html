@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Triskele</title>
+<title>High Fae</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cinzel+Decorative:wght@700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
@@ -700,7 +700,7 @@ canvas{display:block;}
 #chatpanel h3{font-family:var(--disp); font-size:10px; letter-spacing:.16em; color:var(--ink2); margin:0; font-weight:700; pointer-events:none;}
 #chatmin{background:none; border:none; cursor:pointer; font-family:var(--disp); font-weight:900; font-size:13px; color:var(--ink2); padding:0 4px; line-height:1;}
 #chatmin:hover{color:var(--ink);}
-/* ===== Triskele: Duel ===== */
+/* ===== High Fae: Duel ===== */
 #duelhud{position:fixed; left:50%; bottom:8px; transform:translateX(-50%); z-index:30; display:none;
   width:min(780px, calc(100vw - 16px)); padding:8px 10px 6px; border-radius:8px; color:var(--ink); font-size:12px;
   box-shadow:0 6px 24px rgba(0,0,0,.55);}
@@ -948,7 +948,7 @@ body.duelmode #banner{display:none !important;}
   <canvas id="menumist"></canvas>
   <svg id="gladebg" aria-hidden="true"></svg>
   <canvas id="menufireflies"></canvas>
-<div id="buildtag" style="position:fixed; right:12px; bottom:8px; z-index:5; font-family:var(--disp); font-size:9px; letter-spacing:.14em; color:rgba(216,180,90,.45);">TRISKELE · V1.0</div>
+<div id="buildtag" style="position:fixed; right:12px; bottom:8px; z-index:5; font-family:var(--disp); font-size:9px; letter-spacing:.14em; color:rgba(216,180,90,.45);">HIGH FAE · V1.0</div>
   <div class="panel">
     <canvas class="cornerflourish" id="cornerfL" width="460" height="460"></canvas>
     <canvas class="cornerflourish flipped" id="cornerfR" width="460" height="460"></canvas>
@@ -957,7 +957,7 @@ body.duelmode #banner{display:none !important;}
     <canvas class="vineedge" id="vineL"></canvas>
     <canvas class="vineedge" id="vineR"></canvas>
     <canvas class="vineedge" id="vineB"></canvas>
-    <h1 style="font-size:36px; letter-spacing:.06em; line-height:1.08;"><span class="triemblem" aria-hidden="true"></span><svg class="fdtitle" viewBox="0 0 640 124" role="img" aria-label="Triskele"><defs><linearGradient id="fdInlay" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d4d4d4"/><stop offset="8%" stop-color="#9a9a9a"/><stop offset="17%" stop-color="#c4c4c4"/><stop offset="26%" stop-color="#7d7d7d"/><stop offset="34%" stop-color="#b09030"/><stop offset="42%" stop-color="#f0d075"/><stop offset="50%" stop-color="#c9a13a"/><stop offset="58%" stop-color="#8f6f18"/><stop offset="66%" stop-color="#8a8a8a"/><stop offset="74%" stop-color="#c8c8c8"/><stop offset="82%" stop-color="#909090"/><stop offset="90%" stop-color="#c9a13a"/><stop offset="100%" stop-color="#f0d075"/></linearGradient><clipPath id="fdClip"><text x="320" y="94">TRISKELE</text></clipPath></defs><text x="320" y="94" fill="#f2e6c8">TRISKELE</text><g clip-path="url(#fdClip)"><text x="320" y="94" fill="none" stroke="url(#fdInlay)" stroke-width="15">TRISKELE</text><text x="320" y="94" fill="none" stroke="#f2e6c8" stroke-width="6.5">TRISKELE</text></g></svg></h1>
+    <h1 style="font-size:36px; letter-spacing:.06em; line-height:1.08;"><span class="triemblem" aria-hidden="true"></span><svg class="fdtitle" viewBox="0 0 640 124" role="img" aria-label="High Fae"><defs><linearGradient id="fdInlay" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d4d4d4"/><stop offset="8%" stop-color="#9a9a9a"/><stop offset="17%" stop-color="#c4c4c4"/><stop offset="26%" stop-color="#7d7d7d"/><stop offset="34%" stop-color="#b09030"/><stop offset="42%" stop-color="#f0d075"/><stop offset="50%" stop-color="#c9a13a"/><stop offset="58%" stop-color="#8f6f18"/><stop offset="66%" stop-color="#8a8a8a"/><stop offset="74%" stop-color="#c8c8c8"/><stop offset="82%" stop-color="#909090"/><stop offset="90%" stop-color="#c9a13a"/><stop offset="100%" stop-color="#f0d075"/></linearGradient><clipPath id="fdClip"><text x="320" y="94">HIGH FAE</text></clipPath></defs><text x="320" y="94" fill="#f2e6c8">HIGH FAE</text><g clip-path="url(#fdClip)"><text x="320" y="94" fill="none" stroke="url(#fdInlay)" stroke-width="15">HIGH FAE</text><text x="320" y="94" fill="none" stroke="#f2e6c8" stroke-width="6.5">HIGH FAE</text></g></svg></h1>
     <p class="tag">Can you shine brightest and become the High Fae?</p>
     <div class="rules" style="margin-bottom:12px; text-align:center;">
       <b>THE GOAL</b>
@@ -987,7 +987,7 @@ body.duelmode #banner{display:none !important;}
     <div style="text-align:center;" class="duelmenu">
       <b style="letter-spacing:.12em; font-size:12px;">TWO PLAYERS</b>
       <div style="display:flex; justify-content:center; gap:10px; margin-top:8px; flex-wrap:wrap;">
-        <button class="btn gold" id="duelGame">Triskele: Duel</button>
+        <button class="btn gold" id="duelGame">High Fae: Duel</button>
         <button class="btn" id="duelTut">Duel Tutorial</button>
       </div>
     </div>
@@ -1296,7 +1296,7 @@ body.duelmode #banner{display:none !important;}
       'justify-content:center;background:#120c1c;color:#f2e6c8;font-family:Georgia,serif;'+
       'text-align:center;padding:32px;line-height:1.6';
     d.innerHTML='<div style="max-width:30em"><h1 style="color:#d8b45a;letter-spacing:.12em;'+
-      'font-size:22px;margin:0 0 14px">The dance cannot begin</h1><p>This copy of Triskele '+
+      'font-size:22px;margin:0 0 14px">The dance cannot begin</h1><p>This copy of High Fae '+
       'could not summon '+missing.join(' or ')+'.</p><p style="color:#c9b6e0;font-size:14px">'+
       'The file may have been truncated in transit. Try downloading it again.</p></div>';
     document.body.appendChild(d);
@@ -1370,7 +1370,7 @@ function canRecover(p){
    their shape. */
 const MODES = {
   dances: {
-    id:'dances', name:'Triskele',
+    id:'dances', name:'High Fae',
     tracks:ALL_TRACKS,
     runePowers:true, magik:true, conjuredStart:true, reactionWindows:true,
   },
@@ -1737,12 +1737,13 @@ function announceAct(p, html, ms){
    and any later steps follow as "then moved …". */
 const RECAP_MS=3000;      // a recap stays as long as any other line
 const DONE_MS=2000;       // "… completes the River Dance!" is brief
+const PLAYED_MS=2000;     // so is "Thistle plays a 5."; what it does stays 3 s
 let TURNREC=null;
 const andJoin=a=>a.length<2 ? (a[0]||'') : a.slice(0,-1).join(', ')+(a.length>2?',':'')+' and '+a[a.length-1];
 function recStart(p, v){ TURNREC={p, v, kb:kingBonus(p), flip:null, ferry:null, moves:[], told:false, toldMoves:0}; }
 /* First line of a turn: the Rune played. (The second, what it did, follows.) */
 function announcePlayed(p, v, power){
-  return announceAct(p, `${fmtP(p)} plays a <b>${v}</b>${!power && kingBonus(p)?' (the King adds a step)':''}.`, RECAP_MS);
+  return announceAct(p, `${fmtP(p)} plays a <b>${v}</b>${!power && kingBonus(p)?' (the King adds a step)':''}.`, PLAYED_MS);
 }
 /* A Rune spent on its power: what was played, then what it did. */
 async function announcePower(p, v, did){
@@ -6171,7 +6172,7 @@ async function humanTurn(p){
       acted=true;
       p.hand.push(...p.discard.splice(0)); p.hand.sort((a,b)=>a-b);
       log(`${fmtP(p)} sits out the dance and reclaims their discards.`); STAT('sitout',{p:p.i});
-      await announceAct(p, `${fmtP(p)} plays no Rune.`, RECAP_MS);
+      await announceAct(p, `${fmtP(p)} plays no Rune.`, PLAYED_MS);
       await announceAct(p, `${fmtP(p)} sits out the dance and takes back every played Rune.`, RECAP_MS);
       renderHUD(); return;
     }
@@ -8102,7 +8103,7 @@ async function aiTurn(p){
     if(hzLegacyOn(p) && !(window.SPRINT_OFF && window.SPRINT_OFF.has(p.i)) && calm && (p._stoneBurns||0)>=3 && reach < shortest && recoveredReach >= shortest && stoneThreat>=1 && Math.random()<0.8){
       p.hand.push(...p.discard.splice(0)); p.hand.sort((a,b)=>a-b);
       log(`${fmtP(p)} sits out the dance and reclaims their discards.`); STAT('sitout',{p:p.i});
-      await announceAct(p, `${fmtP(p)} plays no Rune.`, RECAP_MS);
+      await announceAct(p, `${fmtP(p)} plays no Rune.`, PLAYED_MS);
       await announceAct(p, `${fmtP(p)} sits out the dance and takes back every played Rune.`, RECAP_MS);
       renderHUD(); await aiPostMagik(p); await wait(500); return;
     }
@@ -8134,7 +8135,7 @@ async function aiTurn(p){
     if(hzLegacyOn(p) && !(window.SPRINT_OFF && window.SPRINT_OFF.has(p.i)) && deadHand && calm && Math.random()<0.85){
       p.hand.push(...p.discard.splice(0)); p.hand.sort((a,b)=>a-b);
       log(`${fmtP(p)} sits out the dance and reclaims their discards.`); STAT('sitout',{p:p.i});
-      await announceAct(p, `${fmtP(p)} plays no Rune.`, RECAP_MS);
+      await announceAct(p, `${fmtP(p)} plays no Rune.`, PLAYED_MS);
       await announceAct(p, `${fmtP(p)} sits out the dance and takes back every played Rune.`, RECAP_MS);
       renderHUD(); await aiPostMagik(p); await wait(500); return;
     }
@@ -8148,7 +8149,7 @@ async function aiTurn(p){
     if(plan && plan.act==='reclaim' && canRecover(p) && seatPol(p,'recover')!=='never' && Math.random()<HZ.rate){
       p.hand.push(...p.discard.splice(0)); p.hand.sort((a,b)=>a-b);
       log(`${fmtP(p)} sits out the dance and reclaims their discards.`); STAT('sitout',{p:p.i});
-      await announceAct(p, `${fmtP(p)} plays no Rune.`, RECAP_MS);
+      await announceAct(p, `${fmtP(p)} plays no Rune.`, PLAYED_MS);
       await announceAct(p, `${fmtP(p)} sits out the dance and takes back every played Rune.`, RECAP_MS);
       renderHUD(); await aiPostMagik(p); await wait(500); return;
     }
@@ -8388,11 +8389,11 @@ addEventListener('error', e=>{ try{
   const msg=(e.message==='Script error.'||e.message==='Script error')
     ? 'A network-library error was hidden by the browser. Check the console (F12) for details.'
     : `${e.message}${where}`;
-  CONS.error('[Triskele]', e.error||e.message, e.error&&e.error.stack||'');
+  CONS.error('[High Fae]', e.error||e.message, e.error&&e.error.stack||'');
   log(`\u26a0 Something went wrong: ${msg}`, 'alert');
 }catch(_){} });
 addEventListener('unhandledrejection', e=>{ try{
-  CONS.error('[Triskele]', e.reason);
+  CONS.error('[High Fae]', e.reason);
   log(`\u26a0 Something went wrong: ${(e.reason&&e.reason.message)||e.reason}`, 'alert');
 }catch(_){} });
 /* UI-side boot shared by solo play, the multiplayer host, and joining guests
@@ -8553,7 +8554,7 @@ async function joinDance(){
   };
   requestAnimationFrame(place);
   const n=await choose(
-    'Triskele',
+    'High Fae',
     `<span class="joinmark"></span>How many Royal Fae at the dance? (you + AI rivals)`,
     [ {label:'3 Royal Fae', value:3},
       {label:'4 Royal Fae', value:4},
@@ -9135,13 +9136,13 @@ function resumeHostGame(saved){
 function crumbPush(m){ try{ NET.crumbs.push({t:Date.now(), m:String(m)}); if(NET.crumbs.length>300) NET.crumbs.shift(); }catch(_){} }
 function netCrumb(msg){
   crumbPush(msg);
-  CONS.info('%c[Triskele net] '+msg, 'color:#d8b45a');
+  CONS.info('%c[High Fae net] '+msg, 'color:#d8b45a');
   try{ const s=(NET.role==='guest')? $('#rjstatus') : $('#lbstatus');
     if(s && !NET.inGame) s.textContent=msg; }catch(_){}
 }
 function netErr(where, e){
   crumbPush('ERR '+where+': '+((e&&e.message)||e));
-  CONS.error('[Triskele net] '+where, e);
+  CONS.error('[High Fae net] '+where, e);
   try{ const s=$('#rjstatus'); if(s && s.offsetParent) s.textContent='Error in '+where+': '+(e&&e.message||e); }catch(_){}
   try{ if(NET.inGame) log(`\u26a0 Network error in ${where}: ${(e&&e.message)||e}`, 'alert'); }catch(_){}
 }
@@ -9150,7 +9151,7 @@ function netErr(where, e){
    connection facts, seat map, public game shape, and the crumb trail. */
 function diagText(){
   const lines=[];
-  lines.push('TRISKELE DIAGNOSTICS \u2014 '+new Date().toISOString());
+  lines.push('HIGH FAE DIAGNOSTICS \u2014 '+new Date().toISOString());
   try{ lines.push('build: '+($('#buildtag')? $('#buildtag').textContent : '?')); }catch(_){}
   try{ lines.push('page: '+location.protocol+' \u00b7 '+navigator.userAgent); }catch(_){}
   lines.push('peerjs: '+(typeof Peer!=='undefined'?'loaded':'MISSING')
@@ -10753,7 +10754,7 @@ async function runTutorial(){
   TUT.skip=false; TUT.tourActive=true;
   $('#tutskip').style.display='block';
   const CHAPTERS=[
-    ['Welcome',             ()=>tutModal('Welcome to Triskele',
+    ['Welcome',             ()=>tutModal('Welcome to High Fae',
        `<b>Goal:</b> have the <b>highest Radiance</b> in the Court that is <b>Called</b>.<p></p>First, your two cards. You can skip to a real game at any time.`, 'Begin')],
     ['Your Cards',          ()=>tutSeg(tutCardSteps(me))],
     ['The Board',           ()=>tutSeg(tutBoardSteps())],
@@ -10990,7 +10991,7 @@ const TLOG = (function(){
     const blob = new Blob([JSON.stringify(pay)], {type:'application/json'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'triskele_trainlog_'+pay.games.length+'g_'+stamp()+'.json';
+    a.download = 'highfae_trainlog_'+pay.games.length+'g_'+stamp()+'.json';
     document.body.appendChild(a); a.click();
     setTimeout(()=>{ try{ URL.revokeObjectURL(a.href); a.remove(); }catch(e){} }, 2000);
     return pay.games.length;
@@ -11277,7 +11278,7 @@ try{ window.TLOG = TLOG; }catch(e){}
 <div id="duelhud" class="panel"></div>
 <div id="duelnews"></div>
 <script>
-/* ===== Triskele Duel engine for the web game: rules + AI (ported from the playtest simulator) ===== */
+/* ===== High Fae Duel engine for the web game: rules + AI (ported from the playtest simulator) ===== */
 (function(){
 'use strict';
 const COURT = ['River', 'Forest', 'Mountain'];
@@ -12472,7 +12473,7 @@ function aiDeclarePick(S, p) {
 async function doSkip(S, p) {
   p.hand = p.hand.concat(p.disc).sort((a, b) => a - b); p.disc = [];
   inc(S.S.rune[p.i], 'skip');
-  say(S, `${nm(p)} plays no Rune.`, 'recap');
+  say(S, `${nm(p)} plays no Rune.`, 'played');
   say(S, `${nm(p)} sits out the dance and takes back every played Rune.`, 'recap');
   await sync(S, 'hand');
 }
@@ -12483,7 +12484,7 @@ async function runePower(S, p, v, kind, arg) {
   inc(S.S.rune[p.i], kind);
   const o = opp(S, p);
   // two lines: the Rune played, then what it did
-  say(S, `${nm(p)} plays a <b>${v}</b>.`, 'recap');
+  say(S, `${nm(p)} plays a <b>${v}</b>.`, 'played');
   await sync(S, 'hand');
   const mine = k => `${p.human ? 'your' : 'their'} ${k === 2 ? 'face-down Claim' : 'stand ' + (k + 1)}`;
   const theirs = k => `${o.human ? 'your' : 'their'} ${k === 2 ? 'face-down Claim' : 'stand ' + (k + 1)}`;
@@ -12663,7 +12664,7 @@ async function aiTurn(S, p) {
   if (best.kind === 'move') {
     inc(S.S.rune[p.i], 'm' + best.v);
     S.rec = { p, v: best.v, kb, flip: null, ferry: null, moves: [], told: false, toldMoves: 0 };
-    say(S, `${nm(p)} plays a <b>${best.v}</b>${kb ? ' (the King adds a step)' : ''}.`, 'recap');
+    say(S, `${nm(p)} plays a <b>${best.v}</b>${kb ? ' (the King adds a step)' : ''}.`, 'played');
     await sync(S, 'hand');
     if (best.v === 1) { const fl = best.pre || chooseFlip(S, p); if (fl) { doFlip(S, p, fl.t, fl.k); await sync(S, 'board'); await pause(S, 350); } }
     if (best.v === 2 && best.pre) { await ferry(S, p, best.pre.t, best.pre.k, best.pre.u); await pause(S, 350); if (S.over) return; }
@@ -12721,7 +12722,7 @@ if (typeof window !== 'undefined') window.DUEL = api;
 
 </script>
 <script>
-/* ===== Triskele: Duel — the table, the HUD and the person's choices ===== */
+/* ===== High Fae: Duel — the table, the HUD and the person's choices ===== */
 (function(){
 'use strict';
 const D = window.DUEL;
@@ -13057,7 +13058,7 @@ async function newsDrain() { while (NEWS.q.length || NEWS.busy) await new Promis
 /* 'log' lines are kept for the record only (the AI's flips and ferries are told in its recap). */
 const quiet = (html, cls) => cls === 'log' || (cls !== 'alert' && cls !== 'sys' && /^(You |Your Fae)/.test(html));
 const tintRival = html => html.split(RIVAL).join(`<b style="color:${liftColor(PLAYER_COLORS[1])}">${RIVAL}</b>`);   // the rival's name in its Fae's colour
-H.log = (_, html, cls) => { try { log(html, cls); } catch (e) {} if (!quiet(html, cls)) announce(tintRival(html), false, cls === 'done' ? 2000 : 0); render(); };   // a completed dance: 2 s; every other line: 3 s
+H.log = (_, html, cls) => { try { log(html, cls); } catch (e) {} if (!quiet(html, cls)) announce(tintRival(html), false, cls === 'done' || cls === 'played' ? 2000 : 0); render(); };   // a completed dance or "plays a 5": 2 s; every other line: 3 s
 H.event = async (_, type, d) => {
   if (type === 'turn') {
     UI.phase = d.p.human ? 'busy' : 'wait';
@@ -13355,7 +13356,7 @@ H.turn = async (_, p) => {
 
 /* ---------- boot ---------- */
 const DUEL_RULES = `
-  <h4>TRISKELE: DUEL</h4>
+  <h4>HIGH FAE: DUEL</h4>
   <p><b>Goal:</b> win two of the three Courts.</p>
   <p><b>Claims.</b> Each player has three Claims: a Radiance card with a Court card behind it. A Radiance counts only for its own Court card.</p>
   <p><b>Facing.</b> Two Radiance cards stand facing your rival: they see them, you don’t. The third lies face down: only you see it. You see your own Court cards.</p>
@@ -13374,7 +13375,7 @@ const DUEL_RULES = `
   <b>Rune 3:</b> redraw one of your cards. <b>Rune 4:</b> your rival redraws one of theirs. An empty pile reshuffles its discards.<br>
   <b>Princess:</b> once declared, also counts for the next Court on her card (${PRINCESS_PATH}).<br>
   <b>Scrying Pool:</b> look at one of your Radiance cards or one of your rival’s Court cards.</p>
-  <p>Everything else follows the Triskele rules.</p>`;
+  <p>Everything else follows the High Fae rules.</p>`;
 
 /* The Duel's table: the board shell, the HUD and the Duel rulebook. */
 function setupDuelTable(opts) {
@@ -13393,12 +13394,12 @@ function setupDuelTable(opts) {
 async function startDuel() {
   if (S) return;
   setupDuelTable();
-  await notice('Triskele: Duel', `Win two of the three Courts against ${RIVAL}.<br><br>New to the Duel? Play the <b>Duel Tutorial</b> from the main menu.`, 'Begin');
+  await notice('High Fae: Duel', `Win two of the three Courts against ${RIVAL}.<br><br>New to the Duel? Play the <b>Duel Tutorial</b> from the main menu.`, 'Begin');
   try { await D.run(S); } catch (e) { console.error(e); }
 }
 /* ---------- the Duel tutorial ----------
    Only what the Duel changes: Claims, the draft, pairing, Calls, two Courts of
-   three, and the Duel's Favors. Same spotlight and chapters as the Triskele
+   three, and the Duel's Favors. Same spotlight and chapters as the High Fae
    tutorial; it ends in a real Duel. */
 function playRealDuel() {
   try { sessionStorage.setItem('triskeleDuelAgain', '1'); } catch (e) {}
@@ -13415,8 +13416,8 @@ async function startDuelTutorial() {
   const P0 = me(), P1 = ai();
   const card = k => () => q(`#duelhud .dcard[data-k="${k}"]`);
   const CH = [
-    ['Welcome', () => tutModal('Triskele: Duel',
-      `Two players. Win <b>two of the three Courts</b>.<p></p>This covers what the Duel changes. Dances, Runes and Wisps work as in Triskele.`, 'Begin')],
+    ['Welcome', () => tutModal('High Fae: Duel',
+      `Two players. Win <b>two of the three Courts</b>.<p></p>This covers what the Duel changes. Dances, Runes and Wisps work as in High Fae.`, 'Begin')],
     ['The Draft', async () => {
       await tutSeg([
         { title: 'Choosing Titles',
@@ -13469,7 +13470,7 @@ async function startDuelTutorial() {
       { target: () => q('#duelhud .dcards'), title: 'Declare',
         body: `At the start of your turn, tap <b>✦ Declare</b> on a Court card to use its Title.` },
       { target: () => boardSpot(BOARD_R), title: 'Favors',
-        body: `<b>River:</b> swap or peek at <b>any</b> Radiance card.<br><b>Mountain:</b> swap or peek at <b>any</b> Court card.<br><b>Forest:</b> as in Triskele.<p></p>A peek is one look. Remember it.` },
+        body: `<b>River:</b> swap or peek at <b>any</b> Radiance card.<br><b>Mountain:</b> swap or peek at <b>any</b> Court card.<br><b>Forest:</b> as in High Fae.<p></p>A peek is one look. Remember it.` },
       { target: () => q('#duelhud .drunes'), title: 'Runes 3 and 4',
         body: `<b>3:</b> redraw one of your cards. <b>4:</b> ${RIVAL} redraws one of theirs.<p></p>An empty pile reshuffles its discards.`, next: 'Play a Duel' },
     ])],
