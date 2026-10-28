@@ -12198,14 +12198,14 @@ async function doCall(S, H, caller, forced) {
     // each player puts one Claim forward, chosen in secret, revealed together
     const parts = S.P.filter(p => liveClaims(p).length);
     const reveal = [];
-    for (const p of parts) reveal.push({ p, k: await chooseRevealFor(S, p, H) });
+    for (const p of parts) reveal.push({ p, k: await chooseRevealFor(S, p, H, p === caller && !forced, forced) });
     const valid = reveal.filter(x => inCourt(S, x.p.claims[x.k].c, H));
-    for (const x of reveal) x.p.claims[x.k].sp = true;       // out of the game, win or lose
+    if (valid.length) for (const x of reveal) x.p.claims[x.k].sp = true;   // a held Call: both Claims leave the game, win or lose
     refresh(S);
     if (!valid.length) {
       S.S.calls.failed++;
       S.w[H] = Math.min(S.w[H], R.failTo);
-      say(S, `No Claim for the ${cname(H)}: the Call fails, and it drops to ${S.w[H]} Wisps.`, 'alert');
+      say(S, `No Claim for the ${cname(H)}: the Call fails, and it drops to ${S.w[H]} Wisps. Both Claims stay.`, 'alert');
       S.history.push({ H, winner: -1, forced, reveal: reveal.map(x => ({ i: x.p.i, k: x.k, r: x.p.claims[x.k].r, c: x.p.claims[x.k].c })) });
       await sync(S, 'wisp');
       await HOOKS.event(S, 'callFails', { H, reveal });
@@ -12282,13 +12282,17 @@ async function callWindow(S, H, need, caller) {
     if (!played) return;
   }
 }
-/* At a Call every player puts one live Claim forward, any Claim: only one for
-   the Called Court can win it, and the Claim leaves the game either way. */
+/* At a Call every player puts one live Claim forward. The player who Called must
+   put forward a Claim for the Called Court; at a forced Call, and for the other
+   player, any Claim. Only one for the Called Court can win it. A held Call
+   takes both Claims out of the game; a forced Call where neither is for the
+   Called Court fails, and both Claims stay. */
 const liveClaims = p => p.claims.map((c, k) => k).filter(k => !p.claims[k].sp);
-async function chooseRevealFor(S, p, H) {
-  const ks = liveClaims(p);
+async function chooseRevealFor(S, p, H, mustMatch, forced) {
+  let ks = liveClaims(p);
+  if (mustMatch) { const m = ks.filter(k => inCourt(S, p.claims[k].c, H)); if (m.length) ks = m; else mustMatch = false; }
   if (ks.length === 1) return ks[0];
-  if (isHuman(p) && HOOKS.reveal) return HOOKS.reveal(S, p, H, ks);
+  if (isHuman(p) && HOOKS.reveal) return HOOKS.reveal(S, p, H, ks, mustMatch, forced);
   return aiPutForward(S, p, H, ks);
 }
 /* AI: weigh winning this Court against what each Claim is still worth elsewhere. */
@@ -13089,7 +13093,7 @@ H.event = async (_, type, d) => {
       return `<div class="drevrow${x.p === d.winner ? ' win' : ''}${counts ? '' : ' off'}"><b>${x.p.human ? 'You' : RIVAL}</b>: Radiance <b>${c.r}</b>${qn ? ' +2 (Queen)' : ''}, ${D.cardName(c.c)}${counts ? (D.cH(c.c) !== d.H ? ' (her second Court)' : '') : ' (no claim here)'}</div>`;
     }).join('');
     const title = type === 'callFails' ? `The ${cname(d.H)} Call fails` : d.winner.human ? `You win the ${cname(d.H)}!` : `${RIVAL} wins the ${cname(d.H)}`;
-    await notice(title, `${rows}<div class="dsmall" style="margin-top:6px">${type === 'callFails' ? `No ${D.COURT[d.H]} Claim: the Court drops to ${S.w[d.H]} Wisps. ` : ''}Both Claims leave the game. Courts: you ${me().won}, ${RIVAL} ${ai().won}.</div>`);
+    await notice(title, `${rows}<div class="dsmall" style="margin-top:6px">${type === 'callFails' ? `No ${D.COURT[d.H]} Claim: the Court drops to ${S.w[d.H]} Wisps. Both Claims stay.` : 'Both Claims leave the game.'} Courts: you ${me().won}, ${RIVAL} ${ai().won}.</div>`);
   } else if (type === 'gameOver') {
     UI.phase = 'over'; render();
     const won = d.winner && d.winner.human;
@@ -13139,11 +13143,12 @@ H.wispCourt = async (_, p, { open, why }) => {
     why === 'prince' ? 'Place a Wisp in any open Court.' : 'Place a Wisp in any open Court.',
     open, wispSub, false);
 };
-H.reveal = async (_, p, h, ks) => {
+H.reveal = async (_, p, h, ks, must, forced) => {
   UI.phase = 'busy'; render();
   const s = await pickClaims({ title: `The ${cname(h)} is Called`, count: 1, ok: 'Put forward', noBack: true, focus: () => 'both',
-    can: sl => mineSlot(sl) && ks.includes(sl), hint: 'Choose one of your Claims.',
-    desc: `Put one Claim forward. Only a ${D.COURT[h]} Claim can win. It leaves the game either way.` });
+    can: sl => mineSlot(sl) && ks.includes(sl), hint: must ? `Choose one of your ${D.COURT[h]} Claims.` : 'Choose one of your Claims.',
+    desc: must ? `You Called it: put forward one of your ${D.COURT[h]} Claims. It leaves the game either way.`
+               : `Put one Claim forward. Only a ${D.COURT[h]} Claim can win. ${forced ? `If neither Claim is for the ${D.COURT[h]}, both stay.` : 'It leaves the game either way.'}` });
   return s == null ? ks[0] : s;
 };
 H.coldIron = async (_, p, { card, by, resolves }) => {
@@ -13365,7 +13370,8 @@ const DUEL_RULES = `
   <p><b>Pair.</b> Deal three Radiance cards each. Choose the Court card behind your face-down Radiance; the other two go behind your stands at random.</p>
   <h4>CALLS</h4>
   <p>You may Call a Court holding <b>6 Wisps</b> after completing a dance, if you hold a Court card for it. The <b>8th Wisp</b> forces a Call. Magik may break a Call by luring or snuffing a Wisp.</p>
-  <p>Each player puts <b>one</b> Claim forward, chosen in secret, any Claim. The higher Claim for that Court wins it. Both Claims leave the game; the others stay. If no one holds a Claim for that Court, the Call fails and it drops to 5.</p>
+  <p>Each player puts <b>one</b> Claim forward, chosen in secret. The player who Called must choose a Claim for that Court; at other Calls, any Claim. The higher Claim for that Court wins it. Both Claims leave the game; the others stay.</p>
+  <p>If an 8th Wisp forces a Call and neither revealed Claim is for that Court, the Call fails and it drops to 5. Both Claims stay. If no one holds a Claim for that Court, the Call fails and it drops to 5.</p>
   <p>A won Court is closed to Wisps; its dance and Favors still work.</p>
   <h4>POWERS</h4>
   <p>A card moved into a Claim takes that Claim’s facing. A peek is one look.<br>
@@ -13454,7 +13460,7 @@ async function startDuelTutorial() {
         { target: () => q('#duelcourts'), title: 'Calls',
           body: `At <b>${S.R.callAt} Wisps</b> you may Call a Court you hold a Court card for. The <b>${S.R.forceAt}th</b> Wisp forces a Call.` },
         { target: () => q('#duelhud .dcards'), title: 'Put one Claim forward',
-          body: `Each player puts <b>one</b> Claim forward, in secret. Any Claim.<p></p>The higher Claim <b>for that Court</b> wins it. Those two Claims leave the game; the others stay.` },
+          body: `Each player puts <b>one</b> Claim forward, in secret. The caller must choose one for that Court; the other player may choose any.<p></p>The higher Claim <b>for that Court</b> wins it. Those two Claims leave the game; the others stay.` },
         { title: 'Try it', body: `The ${cname(H)} has ${S.R.callAt} Wisps. You Call it.`, next: 'Call' },
       ]);
       if (TUT.skip) return;
