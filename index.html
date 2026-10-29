@@ -2023,9 +2023,9 @@ let PICK = null; // System for 3D element selection: { mode, filter, resolve }
    are broad to match. Radii here are in world units.
    Slots 5..10 are the six stations a fresh dance fills (five stones and the
    Triskele); slots 1..4 extend the arc outward for a dance that grows. */
-const R_TRI = 4.5;                                 // the Triskele disc, in world units
+const R_TRI = 6.0;                                 // the Triskele disc, in world units: broad, so the band's words read large
 const TRI_TOP = 0.13;                             // the Triskele's face stands a little proud of the board
-const BOARD_R = 10.2;                              // the round board
+const BOARD_R = 11.35;                             // the round board: the dances wind round the broad Triskele
 const ARM_BASE = {'River Dance':-99.8, 'Forest Dance':20.2, 'Mountain Dance':140.2};   // degrees; the eye looks from +z
 /* [angle past the arm's base (deg), radius], outermost first. Each dance is
    a spiral: it sweeps out from the Triskele steeply, like a leg of the
@@ -2076,17 +2076,20 @@ function courtStartDeg(hid){ return ARM_BASE[courtDance(hid)] + END_DEG; }   // 
 /* The printed 4.5-inch Triskele needs 10 mm sockets for its cubes and a
    smaller spiral to make room; on screen the spiral can be grand. */
 const PRINT_LAYOUT = false;
-const TRI_SPIRAL_R   = PRINT_LAYOUT ? .50 : .52;   // on screen: modest, so the Courts' lands show                      // x R_TRI: the triple spiral's reach
-const TRI_RING_R     = .815;                      // the Triskele's inner ring, holding the lands and the sockets
-const COURT_BAND_IN = .827, COURT_BAND_OUT = .985;                              // the Courts' band: one line
-const COURT_SOCKET_R = PRINT_LAYOUT ? .708 : .765;                      // the first six sockets: a row against the inner ring
-const COURT_SOCKET_R2 = PRINT_LAYOUT ? .518 : .685;                     // the last three: a second row, inside the first
-const COURT_KIND_R   = .905;                      // "… Actions", with its favors either side
+const TRI_SPIRAL_R   = PRINT_LAYOUT ? .25 : .195;   // half its old reach, so each Court's land shows round it
+const TRI_SPIRAL_ROT = 55.3;                       // degrees: turned so each leg of the spiral lies in a Court, not on a divider                      // x R_TRI: the triple spiral's reach
+const TRI_RING_R     = .806;                      // the Triskele's inner ring, holding the lands and the sockets
+const COURT_BAND_IN = .818, COURT_BAND_OUT = .985;                              // the Courts' band: one line
+const COURT_SOCKET_R = PRINT_LAYOUT ? .708 : .7535;                      // the first six sockets: a row against the inner ring
+const COURT_SOCKET_R2 = PRINT_LAYOUT ? .518 : .669;                     // the last three: a second row, inside the first
+const COURT_KIND_R   = .9015;
+/* the band's lettering, in world units across the Triskele's diameter: one size for every word */
+const BAND_TEXT = .24975, BAND_ICON = .234, BAND_TRACK = 1.06;                      // "… Actions", with its favors either side
 /* Five in a row against the ring, then the gold ones (sixth to eighth) stacked
    inside them as a second row; both rows centred. */
 /* Every socket is the same size (10 mm on a 4.5-inch Triskele), set just
    apart: SOCKET_PITCH centre to centre along each row and between the rows. */
-const SOCKET_RAD = PRINT_LAYOUT ? .080 : .032, SOCKET_PITCH = PRINT_LAYOUT ? .19 : .078;
+const SOCKET_RAD = PRINT_LAYOUT ? .080 : .036, SOCKET_PITCH = PRINT_LAYOUT ? .19 : .08475;   // half again as large as they were
 /* The first row holds the sockets before the Call (the first five); the
    second row, inside it, holds the gold ones: the sixth (a Call may be made)
    through the one that forces it. Both rows centred. */
@@ -2101,8 +2104,8 @@ function courtSocketR(i){ return i<SOCKET_ROW1 ? COURT_SOCKET_R : COURT_SOCKET_R
 const COURT_FAVORS = {
   river:   [{icon:'swap', word:'SWAP', tip:'River Favor: swap your Radiance with a rival.'},
             {icon:'eye',  word:'PEEK', tip:'River Favor: look at your own Radiance.'}],
-  forest:  [{icon:'lure', word:'LURE', tip:'Forest Favor: lure a Wisp into a different Court.'},
-            {icon:'snuff',word:'SNUFF', tip:'Forest Favor: snuff two Wisps, from any Courts.'}],
+  forest:  [{icon:'lure', word:'LURE 1', tip:'Forest Favor: lure a Wisp into a different Court.'},
+            {icon:'snuff',word:'SNUFF 2', tip:'Forest Favor: snuff two Wisps, from any Courts.'}],
   mountain:[{icon:'swap', word:'SWAP', tip:'Mountain Favor: swap your Court with a rival.'},
             {icon:'eye',  word:'PEEK', tip:'Mountain Favor: look at a rival’s Court.'}],
 };
@@ -2172,6 +2175,12 @@ function goldSpiral(tri, D){
    bloom has room; laid additively over a spiral of the same art. */
 const GLOW_PAD=1.32;
 let SPIRAL_GLOW=null;
+/* a canvas turned about its centre, for the spiral's glow to follow the spiral */
+function turnCanvas(src, deg){
+  const o=document.createElement('canvas'); o.width=src.width; o.height=src.height;
+  const g=o.getContext('2d'); g.translate(o.width/2,o.height/2); g.rotate(deg*Math.PI/180); g.drawImage(src,-src.width/2,-src.height/2);
+  return o;
+}
 function spiralGlowTex(tri){
   if(SPIRAL_GLOW) return SPIRAL_GLOW;
   const D=512, P=Math.round(D*GLOW_PAD), o=(P-D)/2;
@@ -2235,7 +2244,7 @@ function whenArt(fn){
    four mist sprites, two firefly clouds, one meteor sprite: cheap on phones.
    Under prefers-reduced-motion the night stands perfectly still. */
 let DEFAULT_CAM_R=17;   // module scope: touch handlers live in another function
-const DESK_CAM_R=26;
+const DESK_CAM_R=29;
 const CAM_MAX=60;       // a round board is wide: a portrait phone needs to stand well back    // desktop opens here: the whole table, the board large enough to read
 let CAM_SET=null, CAM_GET=null;   // the corner menu's zoom control binds to these
 let TABLE_MOTES=null;   // module scope: the render loop lives in another function
@@ -2453,7 +2462,7 @@ function buildNightGlade(scene, camera, cam){
         x.moveTo(0,y0); x.lineTo((Math.random()<.5?-1:1)*(4+Math.random()*5), y0+(Math.random()<.5?-1:1)*(3+Math.random()*6)); }
       x.stroke(); x.restore();
     }
-    const ring=new THREE.Mesh(new THREE.RingGeometry(12.15,13.55,96),
+    const ring=new THREE.Mesh(new THREE.RingGeometry(13.0,14.4,96),
       new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c), transparent:true, opacity:.5, depthWrite:false}));
     ring.rotation.x=-Math.PI/2; ring.position.y=-0.24;
     scene.add(ring); }
@@ -2620,8 +2629,8 @@ function init3D(mode){
   const sun=new THREE.DirectionalLight(0xcfd8ff,.55);
   sun.position.set(6,14,8); sun.castShadow=true;
   sun.shadow.mapSize.set(1024,1024);
-  sun.shadow.camera.left=-10; sun.shadow.camera.right=10;
-  sun.shadow.camera.top=10; sun.shadow.camera.bottom=-10;
+  sun.shadow.camera.left=-12; sun.shadow.camera.right=12;
+  sun.shadow.camera.top=12; sun.shadow.camera.bottom=-12;
   scene.add(sun);
   const crownGlow=new THREE.PointLight(0xffe08a,.9,9); crownGlow.position.set(0,2,0); scene.add(crownGlow);
  
@@ -2641,12 +2650,12 @@ function init3D(mode){
   table.position.y=-0.55; table.receiveShadow=true; scene.add(table);
   const glade=buildNightGlade(scene, camera, cam);
   /* Table motes: the glade's own fireflies, drifting over the ring of grass
-     between the board's edge and the table rim (r 11.6 - 15.6). Same size,
+     between the board's edge and the table rim (r 12.5 - 15.6). Same size,
      colour and blink as the glade's; they wander rather than orbit, and hold
      still under reduced motion. */
   TABLE_MOTES=(function(){
     const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const N=34, R0=11.6, R1=15.6;
+    const N=34, R0=12.5, R1=15.6;
     const pos=new Float32Array(N*3), seed=[];
     for(let i=0;i<N;i++){
       const a=Math.random()*6.283, r=R0+Math.random()*(R1-R0);
@@ -2809,6 +2818,7 @@ function init3D(mode){
     if(tri && tri.complete && tri.naturalWidth){
       const half=R*TRI_SPIRAL_R/.89;              // the spiral reaches 89% of the art's half-width
       // only the spiral's central triangle is left uncoloured
+      g.save(); g.translate(c,c); g.rotate(TRI_SPIRAL_ROT*Math.PI/180); g.translate(-c,-c);   // each leg in a Court
       const hm=ART_IMG.heart;
       if(hm && hm.complete && hm.naturalWidth) g.drawImage(hm, c-half, c-half, half*2, half*2);
       // the spiral in gold leaf, raised a little off the lands beneath it
@@ -2823,6 +2833,7 @@ function init3D(mode){
       g.save();
       g.shadowColor='rgba(28,14,2,.6)'; g.shadowBlur=S*.010; g.shadowOffsetX=S*.002; g.shadowOffsetY=S*.004;
       g.drawImage(gold, c-half, c-half, half*2, half*2);
+      g.restore();
       g.restore();
     }
     // the Triskele's inner ring, and the rim, in old gold
@@ -2854,13 +2865,13 @@ function init3D(mode){
         g.stroke();
       }
       // in the band, its kind of actions, a favor icon and its word either side
-      const px=Math.round(S*.037);
+      const px=Math.round(S*BAND_TEXT/R_TRI);        // title and actions alike: half again the old title
       const kind={forest:'WISP ACTIONS', river:'RADIANCE ACTIONS', mountain:'COURT ACTIONS'}[h.id]||'';
       const kr=R*COURT_KIND_R;
-      const kt=arcLine(kind, mid, kr, px, 'rgba(236,196,98,1)', null, 'rgba(18,6,30,.7)');
-      const ic=S*.040, off=(kt/2 + ic*1.0)/kr;
+      const kt=arcLine(kind, mid, kr, px, 'rgba(236,196,98,1)', BAND_TRACK, 'rgba(18,6,30,.7)');
+      const ic=S*BAND_ICON/R_TRI, off=(kt/2 + ic*1.0)/kr;
       COURT_ICON_OFF[h.id]=off;
-      const wf=Math.round(S*.028);
+      const wf=px;
       (COURT_FAVORS[h.id]||[]).forEach((f,k)=>{
         const side=k===0?-1:1;
         const a=mid+side*off, x=c+Math.cos(a)*kr, y=c+Math.sin(a)*kr;
@@ -2873,19 +2884,19 @@ function init3D(mode){
         g.restore();
         if(f.word){
           g.save(); g.font=`700 ${wf}px Cinzel, Georgia, serif`;
-          const ww=f.word.split('').reduce((t,ch)=>t+g.measureText(ch).width*1.12,0);
+          const ww=f.word.split('').reduce((t,ch)=>t+g.measureText(ch).width*BAND_TRACK,0);
           g.restore();
           const wm=mid+side*(off + (ic*.78 + ic*.3 + ww/2)/kr);
-          arcLine(f.word, wm, kr, wf, 'rgba(250,246,255,.97)', 1.12, 'rgba(18,6,30,.6)');
+          arcLine(f.word, wm, kr, wf, 'rgba(250,246,255,.97)', BAND_TRACK, 'rgba(18,6,30,.6)');
         }
       });
     });
   }
-  const triCanvas=document.createElement('canvas'); triCanvas.width=triCanvas.height=1536;
+  const triCanvas=document.createElement('canvas'); triCanvas.width=triCanvas.height=2048;
   const triTex=new THREE.CanvasTexture(triCanvas); triTex.anisotropy=8;
-  const redrawTri=()=>{ drawTriskele(triCanvas.getContext('2d'), 1536); triTex.needsUpdate=true; };
+  const redrawTri=()=>{ drawTriskele(triCanvas.getContext('2d'), 2048); triTex.needsUpdate=true; };
   whenArt(redrawTri);
-  { const side=new THREE.Mesh(new THREE.CylinderGeometry(R_TRI, R_TRI+.05, TRI_TOP-BOARD_TOP+.06, 120),
+  { const side=new THREE.Mesh(new THREE.CylinderGeometry(R_TRI, R_TRI+.05, TRI_TOP-BOARD_TOP+.06, 120, 1, true),   // an open band: a lid under the face would flicker through it from afar
       new THREE.MeshStandardMaterial({color:0x8f6d2a, metalness:.55, roughness:.45}));
     side.position.y=(TRI_TOP+BOARD_TOP-.06)/2; side.castShadow=true; side.receiveShadow=true; scene.add(side);
     const top=new THREE.Mesh(new THREE.CircleGeometry(R_TRI, 120),
@@ -2899,7 +2910,7 @@ function init3D(mode){
     glow.rotation.x=-Math.PI/2; glow.position.y=TRI_TOP+.006; glow.renderOrder=3; glow.visible=false;
     scene.add(glow); triGlowMesh=glow;
     whenArt(()=>{ const t=ART_IMG.triskele;
-      if(t && t.complete && t.naturalWidth){ triGlowMat.map=new THREE.CanvasTexture(spiralGlowTex(t)); triGlowMat.needsUpdate=true; } }); }
+      if(t && t.complete && t.naturalWidth){ triGlowMat.map=new THREE.CanvasTexture(turnCanvas(spiralGlowTex(t), TRI_SPIRAL_ROT)); triGlowMat.needsUpdate=true; } }); }
   /* hover a Court's sockets to hear its name and count; its icons, the favors */
   const courtHits={};
   HOUSES.forEach(h=>{
@@ -2919,7 +2930,7 @@ function init3D(mode){
       courtHits[h.id]._icons=true;
       (COURT_FAVORS[h.id]||[]).forEach((f,k)=>{
         const a=courtStartDeg(h.id)*Math.PI/180+(k===0?-off:off), r=COURT_KIND_R*R_TRI;
-        const hit=new THREE.Mesh(new THREE.CircleGeometry(.3,12),
+        const hit=new THREE.Mesh(new THREE.CircleGeometry(.4,12),
           new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));
         hit.rotation.x=-Math.PI/2; hit.position.set(Math.cos(a)*r, TRI_TOP+.04, Math.sin(a)*r);
         hit.userData.tip=f.tip+' A completed dance may instead take a Faerie Magik card, or Call a Court.';
@@ -3512,7 +3523,7 @@ function nameTagMat(name){
    Seats fan across the far side (never a full ring) because a card at
    the table's edge would be edge-on and unreadable on a fixed screen.
    --------------------------------------------------------------- */
-const STAND_R = 12.7;                    // on the grass: the board ends at 9.8, the table rim at 15.6
+const STAND_R = 13.6;                    // on the grass: the board ends at 11.35, the table rim at 16
 function standCardTex(num, colorCss){
   const c=document.createElement('canvas'); c.width=256; c.height=356;
   const x=c.getContext('2d');
@@ -4023,7 +4034,7 @@ function syncBoard(){
 
       // each settles in its own socket in the Court's band on the Triskele
       const sp=courtSocket(h.id, i);
-      grp.scale.setScalar(PRINT_LAYOUT ? .8 : .6);
+      grp.scale.setScalar(PRINT_LAYOUT ? .8 : .9);
       grp.position.set(sp.x, TRI_TOP+.26+((i*29)%3)*.03, sp.z);
       nobleGroup.add(grp);
       SCENE.wisps.push({flame,tongue,embers,ph:wr()*Math.PI*2});
