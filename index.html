@@ -2023,20 +2023,22 @@ let PICK = null; // System for 3D element selection: { mode, filter, resolve }
    are broad to match. Radii here are in world units.
    Slots 5..10 are the six stations a fresh dance fills (five stones and the
    Triskele); slots 1..4 extend the arc outward for a dance that grows. */
-const R_TRI = 6.0;                                 // the Triskele disc, in world units: broad, so the band's words read large
+const R_TRI = 7.5;                                 // the Triskele disc, in world units: broad, so the band's words read large
 const TRI_TOP = 0.13;                             // the Triskele's face stands a little proud of the board
-const BOARD_R = 11.35;                             // the round board: the dances wind round the broad Triskele
+const BOARD_R = 14.86;                             // the round board: broad stones wound close round the broad Triskele
+const SCENE_K = BOARD_R/11.35;                     // the table, the stands, the glade and the eye stand back with it
 const ARM_BASE = {'River Dance':-99.8, 'Forest Dance':20.2, 'Mountain Dance':140.2};   // degrees; the eye looks from +z
 /* [angle past the arm's base (deg), radius], outermost first. Each dance is
    a spiral: it sweeps out from the Triskele steeply, like a leg of the
    triple spiral, then winds on around the board ever more gently. The three
    arms nest inside one another, never closer than a stone's width apart. */
+const ARM_STONE_R = 1.056;                           // = STONE_R (declared with the meshes, later)
 const SLOT_POLAR = (()=>{
-  const r0=R_TRI+.68, end=67.8, step=1.48;           // the end stone just touches the Triskele's rim
+  const r0=R_TRI+ARM_STONE_R+.02, end=67.8, step=2*ARM_STONE_R+.16;   // the end stone just touches the Triskele's rim
   const out=[[end,r0]]; let phi=0, r=r0;
   while(out.length<SLOTS){
     let acc=0;
-    while(acc<step){ const d=.0005, dr=(.88+2.2*Math.exp(-phi/.8))*d;
+    while(acc<step){ const d=.0005, dr=1.6*d;      // the arms spread evenly out to the board's rim
       acc+=Math.hypot(r*d,dr); phi+=d; r+=dr; }
     out.push([end-phi*180/Math.PI, r]);
   }
@@ -2084,7 +2086,7 @@ const COURT_SOCKET_R = PRINT_LAYOUT ? .708 : .7535;                      // the 
 const COURT_SOCKET_R2 = PRINT_LAYOUT ? .518 : .669;                     // the last three: a second row, inside the first
 const COURT_KIND_R   = .9015;
 /* the band's lettering, in world units across the Triskele's diameter: one size for every word */
-const BAND_TEXT = .24975, BAND_ICON = .234, BAND_TRACK = 1.06;                      // "… Actions", with its favors either side
+const BAND_TEXT = .3122, BAND_ICON = .2925, BAND_TRACK = 1.06;                      // "… Actions", with its favors either side
 /* Five in a row against the ring, then the gold ones (sixth to eighth) stacked
    inside them as a second row; both rows centred. */
 /* Every socket is the same size (10 mm on a 4.5-inch Triskele), set just
@@ -2244,8 +2246,8 @@ function whenArt(fn){
    four mist sprites, two firefly clouds, one meteor sprite: cheap on phones.
    Under prefers-reduced-motion the night stands perfectly still. */
 let DEFAULT_CAM_R=17;   // module scope: touch handlers live in another function
-const DESK_CAM_R=29;
-const CAM_MAX=60;       // a round board is wide: a portrait phone needs to stand well back    // desktop opens here: the whole table, the board large enough to read
+const DESK_CAM_R=Math.round(29*14.86/11.35);
+const CAM_MAX=78;       // a round board is wide: a portrait phone needs to stand well back    // desktop opens here: the whole table, the board large enough to read
 let CAM_SET=null, CAM_GET=null;   // the corner menu's zoom control binds to these
 let TABLE_MOTES=null;   // module scope: the render loop lives in another function
 function buildNightGlade(scene, camera, cam){
@@ -2444,7 +2446,7 @@ function buildNightGlade(scene, camera, cam){
     geo.setAttribute('color',    new THREE.Float32BufferAttribute(colArr,3));
     geo.computeVertexNormals();
     geo.translate(0,-0.25,0);
-    scene.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({vertexColors:true}))); }
+    { const wood=new THREE.Mesh(geo, new THREE.MeshBasicMaterial({vertexColors:true})); wood.scale.setScalar(SCENE_K); scene.add(wood); } }
 
   // the ritual ring: faint gold glyphs engraved in the grass around the board
   { const c=document.createElement('canvas'); c.width=c.height=1024; const x=c.getContext('2d');
@@ -2462,7 +2464,7 @@ function buildNightGlade(scene, camera, cam){
         x.moveTo(0,y0); x.lineTo((Math.random()<.5?-1:1)*(4+Math.random()*5), y0+(Math.random()<.5?-1:1)*(3+Math.random()*6)); }
       x.stroke(); x.restore();
     }
-    const ring=new THREE.Mesh(new THREE.RingGeometry(13.0,14.4,96),
+    const ring=new THREE.Mesh(new THREE.RingGeometry(13.0*SCENE_K,14.4*SCENE_K,96),
       new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c), transparent:true, opacity:.5, depthWrite:false}));
     ring.rotation.x=-Math.PI/2; ring.position.y=-0.24;
     scene.add(ring); }
@@ -2575,7 +2577,7 @@ function init3D(mode){
     camera.lookAt(_px,_sy,_pz+_sy*0.9);
     /* The horizon mist begins just past the board, wherever the eye stands,
        so the board itself is never fogged when the camera pulls back. */
-    if(scene.fog){ scene.fog.near=Math.max(30, cam.r+6); scene.fog.far=scene.fog.near+24; }
+    if(scene.fog){ scene.fog.near=Math.max(39, cam.r+8); scene.fog.far=scene.fog.near+31; }
   }
   /* Start at the farthest view: the whole glade in frame, and let players
      pinch or scroll their way in. 30 is the zoom-out limit everywhere. */
@@ -2627,10 +2629,10 @@ function init3D(mode){
  
   scene.add(new THREE.AmbientLight(0x9a90c8,.6));
   const sun=new THREE.DirectionalLight(0xcfd8ff,.55);
-  sun.position.set(6,14,8); sun.castShadow=true;
-  sun.shadow.mapSize.set(1024,1024);
-  sun.shadow.camera.left=-12; sun.shadow.camera.right=12;
-  sun.shadow.camera.top=12; sun.shadow.camera.bottom=-12;
+  sun.position.set(8,18.3,10.5); sun.castShadow=true;
+  sun.shadow.mapSize.set(2048,2048);
+  sun.shadow.camera.left=-16; sun.shadow.camera.right=16;
+  sun.shadow.camera.top=16; sun.shadow.camera.bottom=-16;
   scene.add(sun);
   const crownGlow=new THREE.PointLight(0xffe08a,.9,9); crownGlow.position.set(0,2,0); scene.add(crownGlow);
  
@@ -2646,7 +2648,7 @@ function init3D(mode){
     return new THREE.CanvasTexture(c); })();
   const tableSide=new THREE.MeshStandardMaterial({color:0x090e07, roughness:1});
   const tableTop=new THREE.MeshStandardMaterial({map:grassTex, roughness:.95});
-  const table=new THREE.Mesh(new THREE.CylinderGeometry(16,16,.6,48), [tableSide, tableTop, tableSide]);
+  const table=new THREE.Mesh(new THREE.CylinderGeometry(16*SCENE_K,16*SCENE_K,.6,64), [tableSide, tableTop, tableSide]);
   table.position.y=-0.55; table.receiveShadow=true; scene.add(table);
   const glade=buildNightGlade(scene, camera, cam);
   /* Table motes: the glade's own fireflies, drifting over the ring of grass
@@ -2655,7 +2657,7 @@ function init3D(mode){
      still under reduced motion. */
   TABLE_MOTES=(function(){
     const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const N=34, R0=12.5, R1=15.6;
+    const N=34, R0=12.5*SCENE_K, R1=15.6*SCENE_K;
     const pos=new Float32Array(N*3), seed=[];
     for(let i=0;i<N;i++){
       const a=Math.random()*6.283, r=R0+Math.random()*(R1-R0);
@@ -2746,9 +2748,9 @@ function init3D(mode){
       g.lineWidth=S*.0028; g.strokeStyle='rgba(201,160,62,.8)'; path(grow,.985); g.stroke();
     });
   }
-  const boardCanvas=document.createElement('canvas'); boardCanvas.width=boardCanvas.height=2048;
+  const boardCanvas=document.createElement('canvas'); boardCanvas.width=boardCanvas.height=3072;
   const boardTex=new THREE.CanvasTexture(boardCanvas); boardTex.anisotropy=8;
-  whenArt(()=>{ drawBoard(boardCanvas.getContext('2d'), 2048); boardTex.needsUpdate=true; });
+  whenArt(()=>{ drawBoard(boardCanvas.getContext('2d'), 3072); boardTex.needsUpdate=true; });
   { const top=new THREE.Mesh(new THREE.CircleGeometry(BOARD_R, 128),
       new THREE.MeshStandardMaterial({map:boardTex, roughness:.92, metalness:0}));
     top.material.emissive=new THREE.Color(0x5a5a5a); top.material.emissiveMap=boardTex;
@@ -2892,6 +2894,56 @@ function init3D(mode){
       });
     });
   }
+  /* A completed dance lights its Court's stretch of the band: the band warms,
+     its edges burn gold, and its kind of actions and both favors kindle. Drawn
+     on its own layer, laid over the Triskele with additive light. */
+  function drawBandGlow(g, S, ids){
+    g.clearRect(0,0,S,S);
+    const c=S/2, R=S/2, rad=d=>d*Math.PI/180;
+    function glowLine(text, mid, rr, px, color, track){
+      g.save(); g.font=`700 ${px}px Cinzel, Georgia, serif`; g.textAlign='center'; g.textBaseline='middle';
+      const cw=text.split('').map(ch=>g.measureText(ch).width*(track||1.1)), tot=cw.reduce((a,b)=>a+b,0);
+      [[S*.016,.75],[0,1]].forEach(([blur,alpha])=>{                     // a halo, then the letters themselves
+        let acc=-tot/2;
+        text.split('').forEach((ch,i)=>{ const m=acc+cw[i]/2; acc+=cw[i]; const a=mid+m/rr;
+          g.save(); g.translate(c+Math.cos(a)*rr, c+Math.sin(a)*rr); g.rotate(a+Math.PI/2);
+          g.globalAlpha=alpha; g.shadowColor='rgba(255,206,110,1)'; g.shadowBlur=blur;
+          g.fillStyle=color; g.fillText(ch,0,0); g.restore(); });
+      });
+      g.restore();
+      return tot;
+    }
+    ids.forEach(id=>{
+      const mid=rad(courtStartDeg(id)), a0=mid-rad(60), a1=mid+rad(60);
+      g.save();
+      g.beginPath(); g.arc(c,c,R*COURT_BAND_OUT,a0,a1); g.arc(c,c,R*COURT_BAND_IN,a1,a0,true); g.closePath();
+      const rg=g.createRadialGradient(c,c,R*COURT_BAND_IN,c,c,R*COURT_BAND_OUT);
+      rg.addColorStop(0,'rgba(255,186,80,.42)'); rg.addColorStop(.5,'rgba(255,200,96,.26)'); rg.addColorStop(1,'rgba(255,186,80,.42)');
+      g.fillStyle=rg; g.fill();
+      g.shadowColor='rgba(255,200,90,1)'; g.shadowBlur=S*.014;
+      g.lineWidth=S*.0055; g.strokeStyle='rgba(255,222,140,.95)'; g.stroke();
+      g.restore();
+      const px=Math.round(S*BAND_TEXT/R_TRI), kr=R*COURT_KIND_R, ic=S*BAND_ICON/R_TRI;
+      const kind={forest:'WISP ACTIONS', river:'RADIANCE ACTIONS', mountain:'COURT ACTIONS'}[id]||'';
+      const kt=glowLine(kind, mid, kr, px, 'rgba(255,214,120,1)', BAND_TRACK);
+      const off=(kt/2 + ic*1.0)/kr;
+      (COURT_FAVORS[id]||[]).forEach((f,k)=>{
+        const side=k===0?-1:1, a=mid+side*off;
+        g.save(); g.translate(c+Math.cos(a)*kr, c+Math.sin(a)*kr); g.rotate(a+Math.PI/2);
+        g.shadowColor='rgba(255,206,110,1)'; g.shadowBlur=S*.016;
+        g.beginPath(); g.arc(0,0,ic*.78,0,6.283); g.lineWidth=S*.004; g.strokeStyle='rgba(255,240,200,1)'; g.stroke();
+        g.fillStyle='rgba(255,244,214,1)'; g.strokeStyle='rgba(255,244,214,1)';
+        drawFavorGlyph(g, f.icon, ic);
+        g.restore();
+        if(f.word){
+          g.save(); g.font=`700 ${px}px Cinzel, Georgia, serif`;
+          const ww=f.word.split('').reduce((t,ch)=>t+g.measureText(ch).width*BAND_TRACK,0);
+          g.restore();
+          glowLine(f.word, mid+side*(off + (ic*.78 + ic*.3 + ww/2)/kr), kr, px, 'rgba(255,248,228,1)', BAND_TRACK);
+        }
+      });
+    });
+  }
   const triCanvas=document.createElement('canvas'); triCanvas.width=triCanvas.height=2048;
   const triTex=new THREE.CanvasTexture(triCanvas); triTex.anisotropy=8;
   const redrawTri=()=>{ drawTriskele(triCanvas.getContext('2d'), 2048); triTex.needsUpdate=true; };
@@ -2911,6 +2963,14 @@ function init3D(mode){
     scene.add(glow); triGlowMesh=glow;
     whenArt(()=>{ const t=ART_IMG.triskele;
       if(t && t.complete && t.naturalWidth){ triGlowMat.map=new THREE.CanvasTexture(turnCanvas(spiralGlowTex(t), TRI_SPIRAL_ROT)); triGlowMat.needsUpdate=true; } }); }
+  const bandCanvas=document.createElement('canvas'); bandCanvas.width=bandCanvas.height=1024;
+  const bandTex=new THREE.CanvasTexture(bandCanvas);
+  const bandGlowMat=new THREE.MeshBasicMaterial({map:bandTex, transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false});
+  const bandGlow=new THREE.Mesh(new THREE.CircleGeometry(R_TRI, 120), bandGlowMat);
+  bandGlow.rotation.x=-Math.PI/2; bandGlow.position.y=TRI_TOP+.004; bandGlow.renderOrder=2; bandGlow.visible=false; scene.add(bandGlow);
+  let bandShown='';
+  const showBandGlow=ids=>{ const key=ids.slice().sort().join(','); if(key===bandShown) return;
+    bandShown=key; drawBandGlow(bandCanvas.getContext('2d'), 1024, ids); bandTex.needsUpdate=true; };
   /* hover a Court's sockets to hear its name and count; its icons, the favors */
   const courtHits={};
   HOUSES.forEach(h=>{
@@ -2930,7 +2990,7 @@ function init3D(mode){
       courtHits[h.id]._icons=true;
       (COURT_FAVORS[h.id]||[]).forEach((f,k)=>{
         const a=courtStartDeg(h.id)*Math.PI/180+(k===0?-off:off), r=COURT_KIND_R*R_TRI;
-        const hit=new THREE.Mesh(new THREE.CircleGeometry(.4,12),
+        const hit=new THREE.Mesh(new THREE.CircleGeometry(.5,12),
           new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));
         hit.rotation.x=-Math.PI/2; hit.position.set(Math.cos(a)*r, TRI_TOP+.04, Math.sin(a)*r);
         hit.userData.tip=f.tip+' A completed dance may instead take a Faerie Magik card, or Call a Court.';
@@ -3374,7 +3434,7 @@ function init3D(mode){
   });
  
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let t0=0, calling=false, callLight=0, callT=0, camFrom=null;
+  let t0=0, calling=false, callLight=0, callT=0, camFrom=null, runeLight=0, bandLight=0;
   function loop(t){
     requestAnimationFrame(loop);
     if(window.__NORENDER) return;          // a headless test harness plays without drawing
@@ -3391,11 +3451,22 @@ function init3D(mode){
       callLight = calling ? Math.min(1, callLight+dt*.7) : 0;
       const breath = .82+.18*Math.sin(t*.0035);
       const lit = callLight*callLight*(3-2*callLight);      // ease in
-      crownGlow.intensity = .35+Math.sin(t*.0016)*.08 + lit*.35*breath;
-      if(SCENE_TRI) SCENE_TRI.material.emissiveIntensity = .08 + lit*.05*breath;
-      if(triGlowMesh){ triGlowMesh.visible = lit>0; triGlowMat.opacity = lit*(.78+.22*Math.sin(t*.0035)); }
+      /* A 1 or a 2 played: the Triskele glows while its stone turns over or floats */
+      /* ...and a completed dance: the Triskele, and its Court's stretch of the band */
+      const dances = danceGlowing(), danceOn = dances.some(d=>d.on);
+      const runeFx = FLIP_FX.some(F=>F.kind==='stone') || FERRY_FX.some(F=>!F.done) || danceOn;
+      runeLight = runeFx ? Math.min(1, runeLight+dt*3) : Math.max(0, runeLight-dt*1.4);
+      bandLight = danceOn ? Math.min(1, bandLight+dt*2.5) : Math.max(0, bandLight-dt*1.1);
+      if(bandLight>0){
+        showBandGlow(dances.map(d=>d.id));
+        bandGlow.visible=true; bandGlowMat.opacity = bandLight*bandLight*(3-2*bandLight)*(.82+.18*Math.sin(t*.0045));
+      } else bandGlow.visible=false;
+      const glow = Math.max(lit, runeLight*runeLight*(3-2*runeLight));
+      crownGlow.intensity = .35+Math.sin(t*.0016)*.08 + glow*.35*breath;
+      if(SCENE_TRI) SCENE_TRI.material.emissiveIntensity = .08 + glow*.05*breath;
+      if(triGlowMesh){ triGlowMesh.visible = glow>0; triGlowMat.opacity = glow*(.78+.22*Math.sin(t*.0035)); }
       if(STONE_GLOW_MAT) STONE_GLOW_MAT.opacity = lit*(.85+.15*Math.sin(t*.0035+1.2));
-      if(SCENE && SCENE.conjHalos) SCENE.conjHalos.forEach(h=>h.scale.setScalar(1.7+lit*1.1*breath));
+      if(SCENE && SCENE.conjHalos) SCENE.conjHalos.forEach(h=>h.scale.setScalar((1.7+lit*1.1*breath)*STONE_R/.66));
       /* ...and a moment later its light climbs into the sky */
       callT = calling ? callT+Math.min(dt,.1) : 0;
       const rise = Math.max(0, Math.min(1, (callT-.7)/1.8)), riseE = 1-Math.pow(1-rise,3);
@@ -3451,7 +3522,9 @@ function init3D(mode){
         s.m.scale.y += (target - s.m.scale.y)*.18;
       });
       // the dancers: hover, flutter, and glide when their step is taken
+      if(FERRY_FX.length && !window.__FX_MANUAL) stepFerryFx(dt);  // (a test harness may step these by hand)
       if(SCENE && SCENE.pawnList) animateFaeries(ts, dt);
+      if(FLIP_FX.length && !window.__FX_MANUAL) stepFlipFx(dt);
       if(SCENE && SCENE.wisps) animateWisps(ts, dt);
       if(WISP_TRAIL) WISP_TRAIL.update(dt);
       /* The seats: each card turns to face the camera so it stays legible at
@@ -3523,7 +3596,7 @@ function nameTagMat(name){
    Seats fan across the far side (never a full ring) because a card at
    the table's edge would be edge-on and unreadable on a fixed screen.
    --------------------------------------------------------------- */
-const STAND_R = 13.6;                    // on the grass: the board ends at 11.35, the table rim at 16
+const STAND_R = 13.6*SCENE_K;           // on the grass, between the board's rim and the table's
 function standCardTex(num, colorCss){
   const c=document.createElement('canvas'); c.width=256; c.height=356;
   const x=c.getContext('2d');
@@ -3652,7 +3725,7 @@ function syncStands(){
     const rank=(p.i-MY_SEAT+ps.length)%ps.length - 1;   // 0..n-1 going round from you
     const t = n===1 ? 0.5 : rank/(n-1);
     const ang = -spread/2 + spread*t;
-    st.position.set(Math.sin(ang)*STAND_R, 0, -Math.cos(ang)*STAND_R);
+    st.position.set(Math.sin(ang)*STAND_R, 0, -Math.cos(ang)*STAND_R); st.scale.setScalar(SCENE_K);
     st.rotation.y = ang;                      // easel squares up to the table
     st.userData.seat = p.i;                   // so a hover can name their runes
     const away = (G.away && G.away.includes(p.i)) ||
@@ -3681,7 +3754,7 @@ function syncStands(){
   });
 }
 /* ---------- stones, Court cards, and the supply ---------- */
-const STONE_R=.66, STONE_H=.11, STONE_Y=.19, TRI_STONE_Y=.21, PAWN_Y=.21;
+const STONE_R=1.056, STONE_H=.13, STONE_Y=.19, TRI_STONE_Y=.21, PAWN_Y=.21;   // broad stones: the dances fill the board
 let STONE_GEO=null, STONE_SIDE_MAT=null;
 const STONE_TEX={};
 function stoneTex(kind){
@@ -3781,6 +3854,7 @@ function syncSupply(){
 }
 function syncBoard(){
   const {pawnGroup,nobleGroup}=SCENE;
+  ferryClaim();
   if(!SCENE.glowMat){
     const c=document.createElement('canvas'); c.width=c.height=64;
     const x=c.getContext('2d');
@@ -3811,6 +3885,7 @@ function syncBoard(){
       top.position.set(p.x, y+.001, p.z);
       top.receiveShadow=true;
       top.userData={track:tr, step, baseEmissive:0x000000, tri:!!st.tri};
+      if(flipHidden(tr, step)) top.visible=false;
       const side=new THREE.Mesh(STONE_GEO.side, STONE_SIDE_MAT);
       side.rotation.x=Math.PI/2; side.position.set(0,0,-STONE_H/2);  // hangs beneath the face
       side.castShadow=true; top.add(side);
@@ -3832,8 +3907,8 @@ function syncBoard(){
           cx.fillStyle=cg; cx.fillRect(0,0,64,64);
           SCENE.conjGlowMat=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cc), blending:THREE.AdditiveBlending, depthWrite:false, transparent:true});
         }
-        const halo=new THREE.Sprite(SCENE.conjGlowMat); halo.scale.set(1.7,1.7,1);
-        halo.position.set(p.x,y+.05,p.z);
+        const halo=new THREE.Sprite(SCENE.conjGlowMat); halo.scale.set(2.72,2.72,1);
+        halo.position.set(p.x,y+.05,p.z); halo.userData.key=tr+'|'+step; if(flipHidden(tr, step)) halo.visible=false;
         TG.add(halo); SCENE.conjHalos.push(halo);
         if(SCENE.stoneBeamLayers){
           if(!SCENE.stoneBeamGeos){
@@ -3943,10 +4018,10 @@ function syncBoard(){
       if(c.track){
         const tp=tilePos(c.track, Math.min(c.steps,trackLen(c.track)));
         const ang=(pi/G.players.length)*Math.PI*2 + ci*Math.PI;
-        x=tp.x+Math.cos(ang)*.36; z=tp.z+Math.sin(ang)*.36;
+        x=tp.x+Math.cos(ang)*.58; z=tp.z+Math.sin(ang)*.58;
       } else return;   // off-board dancers live beside the hand, not on the board
       g.position.set(x, PAWN_Y, z);
-      g.scale.setScalar(1.3);                 // a touch larger: the watercolor stones are broad
+      g.scale.setScalar(1.95);                // larger: the watercolor stones are broad
 
       // animation state, plus the memory that lets a step become a glide
       g.userData.anim={a1,a3,crown,wings,
@@ -3955,12 +4030,19 @@ function syncBoard(){
 
       const key=p.i+':'+ci;
       const prev=PAWN_LAST[key];
-      if(prev && (Math.abs(prev.x-x)>.02 || Math.abs(prev.z-z)>.02)){
+      const ride=ferryRide(key);
+      if(ride){
+        // standing on a ferried stone: it rides there
+        g.userData.anim.ride=ride;
+        g.position.set(ride.F.cur.x+ride.off.x, PAWN_Y+ride.F.h, ride.F.cur.z+ride.off.z);
+      }else if(prev && (Math.abs(prev.x-x)>.02 || Math.abs(prev.z-z)>.02)){
         // it was somewhere else a moment ago — set it back and let it dance across
+        // (on a stone closing a ferried stone's gap, it waits for the stone to move)
         g.position.set(prev.x,PAWN_Y,prev.z);
+        const dur=Math.min(1.05,.34+prev.d(x,z)*.16);
         g.userData.anim.glide={from:new THREE.Vector3(prev.x,PAWN_Y,prev.z),
-                               to:new THREE.Vector3(x,PAWN_Y,z), t:0,
-                               dur:Math.min(1.05,.34+prev.d(x,z)*.16)};
+                               to:new THREE.Vector3(x,PAWN_Y,z), t:0, dur,
+                               wait:ferrySlideOf(c.track+'|'+Math.min(c.steps,trackLen(c.track)))};
       }
       PAWN_LAST[key]={x,z,d:(nx,nz)=>Math.hypot(nx-x,nz-z)};
 
@@ -4034,7 +4116,7 @@ function syncBoard(){
 
       // each settles in its own socket in the Court's band on the Triskele
       const sp=courtSocket(h.id, i);
-      grp.scale.setScalar(PRINT_LAYOUT ? .8 : .9);
+      grp.scale.setScalar(PRINT_LAYOUT ? .8 : 1.125);
       grp.position.set(sp.x, TRI_TOP+.26+((i*29)%3)*.03, sp.z);
       nobleGroup.add(grp);
       SCENE.wisps.push({flame,tongue,embers,ph:wr()*Math.PI*2});
@@ -5012,6 +5094,7 @@ function tumbleFae(tr, k) {
 function applyFlip(actor, tr, k){
   const st = G.steps[tr] && G.steps[tr][k-1];
   if(!st || st.c) return false;
+  flipStoneFx(tr, k);                 // the stone turns over, and its Fae are thrown clear
   st.c = true;
   const victims = tumbleFae(tr, k);
   if(TURNREC && TURNREC.p===actor && !TURNREC.flip) TURNREC.flip={tr, k, victims};
@@ -5025,6 +5108,12 @@ function applyFlip(actor, tr, k){
    Riders land on the new outer stone (step 1) of the destination dance.
    Implemented in two clean phases so same-track and cross-track both behave. */
 async function ferryConjured(actor, fromTr, k, toTr){
+  ferryStoneFx(fromTr, k, toTr);
+  try{ if(typeof NET!=='undefined' && NET.role==='host' && NET.inGame){
+    // the table sees the board as it was, then the stone in flight
+    if(NET.syncT){ clearTimeout(NET.syncT); NET.syncT=null; } NET.lastSync=Date.now(); netStateAll();
+    netAll({type:'fx', kind:'ferry', from:fromTr, k, to:toTr});
+  } }catch(e){}
   // Phase 0: tag riders so we can set them aside during the index shuffling.
   let carried=0;
   G.players.forEach(q=>q.cands.forEach(c=>{
@@ -5049,6 +5138,7 @@ async function ferryConjured(actor, fromTr, k, toTr){
   if(TURNREC && TURNREC.p===actor && !TURNREC.ferry) TURNREC.ferry={from:fromTr, to:toTr, carried};
   log(`${fmtP(actor)} moves a Triskeled stone to the outer end of the <b>${toTr}</b>${carried?', carrying its Fae along':''}.`);
   syncBoard(); renderHUD();
+  await ferryWait();                       // the stone lands before anything else happens
   // A moved stone can leave a dancer standing on what is NOW the final stone
   // (the track shrank beneath them, or the insertion pushed them inward).
   // Such a dance completes IMMEDIATELY, before anything else: the dancer's
@@ -5231,6 +5321,272 @@ function makeWispTrail(scene, tex){
   };
 }
 
+/* ---------- THE FLIP, SEEN ----------
+   A land stone lifts off the board, turns over in the air to show its
+   Triskeled face, and settles back with a burst of gold. Any Fae standing on
+   it are thrown clear: they tumble head over heels onto the purple board, lie
+   there a moment, and fade home to their reserve as a wisp of light.
+   Pure show: the rule itself is applied the same instant, as always; the real
+   stone simply stays hidden until its double has landed. */
+/* A completed dance: its Court glows from the moment it completes until the
+   completion has played out (the Wisp placed, the favor taken), and for at
+   least a few seconds. A count, so nested completions in one Court keep it lit. */
+const DANCE_GLOW={};              // court id -> {n, t0, until}
+function danceGlow(tr, on){
+  const id=COURT_OF_DANCE[tr]; if(!id) return;
+  const now=performance.now(), D=DANCE_GLOW[id];
+  if(on) DANCE_GLOW[id]={n:(D && D.n>0 ? D.n : 0)+1, t0:now, until:0};
+  else if(D && D.n>0){ D.n--; if(!D.n) D.until=Math.max(now+400, D.t0+2800); }
+}
+function danceGlowing(){          // [{id, on}]: on while lit, then a moment more as it fades
+  const now=performance.now(), out=[];
+  for(const id in DANCE_GLOW){ const D=DANCE_GLOW[id];
+    const held=D.n>0 && now-D.t0<90000;                       // (a lost ending lets go after a while)
+    const on=held || now<D.until;
+    const end=held ? Infinity : (D.n>0 ? D.t0+90000 : D.until);
+    if(on || now<end+1200) out.push({id, on}); else delete DANCE_GLOW[id]; }
+  return out;
+}
+const FLIP_FX=[];                 // running effects, stepped every frame
+const FLIP_HIDE={};               // 'track|step' -> the real stone stays hidden until its flip lands (or this time, as a backstop)
+const FLIP_STONE_S=1.15, FLIP_FAE_S=2.3;
+function flipHidden(tr, step){ const t=FLIP_HIDE[tr+'|'+step]; return !!t && t>performance.now(); }
+function flipStoneFx(tr, k){
+  try{
+    if(!SCENE || !SCENE.scene || !SCENE.tiles || !STONE_GEO || window.__NORENDER) return;
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const tile=SCENE.tiles.find(t=>t.userData.track===tr && t.userData.step===k);
+    if(!tile || tile.userData.tri) return;
+    const scene=SCENE.scene, p=tile.position.clone(), key=tr+'|'+k;
+    FLIP_HIDE[key]=performance.now()+6000;
+    tile.visible=false;
+    // the axis it turns over on: along its dance, so it rolls across the path
+    const a=tilePos(tr, Math.max(1,k-1)), b=tilePos(tr, Math.min(trackLen(tr),k+1));
+    const axis=new THREE.Vector3(b.x-a.x, 0, b.z-a.z);
+    if(axis.lengthSq()<1e-6) axis.set(-p.z,0,p.x);
+    axis.normalize();
+    const side=new THREE.Vector3(-axis.z,0,axis.x);       // across the path: where the Fae are thrown
+    // the double: its land face up, its Triskeled face beneath, its gold edge between
+    const g=new THREE.Group(); g.position.set(p.x, STONE_Y-STONE_H/2, p.z);
+    const upM=tile.material.clone(); upM.transparent=true;
+    const up=new THREE.Mesh(STONE_GEO.top, upM); up.rotation.x=-Math.PI/2; up.position.y=STONE_H/2+.002;
+    const dnM=new THREE.MeshStandardMaterial({map:stoneTex('triskeled'), transparent:true, roughness:.85, metalness:0, alphaTest:.05});
+    const dn=new THREE.Mesh(STONE_GEO.top, dnM); dn.rotation.x=Math.PI/2; dn.position.y=-STONE_H/2-.002;
+    const rim=new THREE.Mesh(STONE_GEO.side, STONE_SIDE_MAT);
+    up.castShadow=dn.castShadow=rim.castShadow=true;
+    g.add(up,dn,rim); scene.add(g);
+    FLIP_FX.push({kind:'stone', g, t:0, axis, base:new THREE.Vector3(p.x, STONE_Y-STONE_H/2, p.z), key, tr, k, landed:false});
+    // the Fae standing on it are thrown clear, each to its own patch of open board:
+    // off the Triskele, off every other stone, and inside the rim
+    const others=SCENE.tiles.filter(t=>t!==tile).map(t=>t.position);
+    const spots=[];
+    const landing=()=>{
+      let best=null;
+      for(let j=0;j<24;j++){ const ang=j/24*6.283;
+        for(const d of [STONE_R+.5, STONE_R+.75]){
+          const x=p.x+Math.cos(ang)*d, z=p.z+Math.sin(ang)*d, r=Math.hypot(x,z);
+          if(r<R_TRI+.75 || r>BOARD_R-.6) continue;
+          let clear=9; others.forEach(o=>{ clear=Math.min(clear, Math.hypot(o.x-x,o.z-z)-STONE_R); });
+          spots.forEach(o=>{ clear=Math.min(clear, Math.hypot(o.x-x,o.z-z)-.45); });
+          const score=Math.min(clear,1.2) - (d-STONE_R)*.15 + (r-Math.hypot(p.x,p.z))*.25;   // open board, near, and outward
+          if(!best || score>best.score) best={x,z,score};
+        } }
+      if(!best) best={x:p.x+side.x*(STONE_R+.5), z:p.z+side.z*(STONE_R+.5)};
+      spots.push(best); return best;
+    };
+    const list=SCENE.pawnList||[];
+    let n=0;
+    for(let i=list.length-1;i>=0;i--){
+      const pg=list[i];
+      const dx=pg.position.x-p.x, dz=pg.position.z-p.z;
+      if(dx*dx+dz*dz > STONE_R*STONE_R*.92) continue;
+      list.splice(i,1);
+      if(pg.parent) pg.parent.remove(pg);
+      scene.add(pg);
+      const L=landing(), from=pg.position.clone();
+      const to=new THREE.Vector3(L.x,PAWN_Y,L.z);
+      const out=new THREE.Vector3(L.x-p.x,0,L.z-p.z).normalize();
+      const spinAxis=new THREE.Vector3(0,1,0).cross(out).normalize();
+      FLIP_FX.push({kind:'fae', g:pg, t:-.08*n, from, to, spinAxis, q0:pg.quaternion.clone(),
+        s0:pg.scale.x, colour:(pg.userData.anim && pg.userData.anim.colour) || 0xffe6b0, fade:false});
+      n++;
+    }
+  }catch(e){ console.error('flip fx', e); }
+}
+const _fxQ=new THREE.Quaternion(), _fxV=new THREE.Vector3();
+function stepFlipFx(dt){
+  dt=Math.min(dt,.1);                     // a slow frame still keeps time; a hidden tab doesn't leap
+  for(let i=FLIP_FX.length-1;i>=0;i--){
+    const F=FLIP_FX[i]; F.t+=dt;
+    if(F.kind==='stone'){
+      const u=Math.min(1, F.t/FLIP_STONE_S);
+      const turn=Math.min(1, Math.max(0, (u-.08)/.74)), te=turn<.5 ? 2*turn*turn : 1-Math.pow(-2*turn+2,2)/2;
+      const air=Math.min(1, Math.max(0, (u-.02)/.84));
+      let h=Math.sin(air*Math.PI)*STONE_R*.85;
+      if(u>.86) h+=Math.sin((u-.86)/.14*Math.PI)*.07;             // a small bounce as it settles
+      F.g.position.set(F.base.x, F.base.y+h, F.base.z);
+      F.g.quaternion.setFromAxisAngle(F.axis, te*Math.PI);
+      if(!F.landed && u>=.86){
+        F.landed=true;
+        if(WISP_TRAIL) for(let m=0;m<14;m++){ const a=m/14*6.283;
+          _fxV.set(F.base.x+Math.cos(a)*STONE_R*.95, F.base.y+.12, F.base.z+Math.sin(a)*STONE_R*.95);
+          WISP_TRAIL.emit(_fxV, 0xf2c55a, 1); }
+      }
+      if(u>=1){
+        SCENE.scene.remove(F.g);
+        F.g.traverse(o=>{ if(o.material && o.material!==STONE_SIDE_MAT) o.material.dispose(); });
+        delete FLIP_HIDE[F.key];
+        (SCENE.tiles||[]).forEach(t=>{ if(t.userData.track===F.tr && t.userData.step===F.k) t.visible=true; });
+        (SCENE.conjHalos||[]).forEach(h=>{ if(h.userData.key===F.key) h.visible=true; });
+        FLIP_FX.splice(i,1);
+      }
+      continue;
+    }
+    // a Fae, thrown clear
+    const t=F.t, g=F.g;
+    if(t<0) continue;
+    const FLY=.62, LIE=.55, GO=.5;
+    if(t<FLY){
+      const u=t/FLY;
+      g.position.lerpVectors(F.from, F.to, u);
+      g.position.y=PAWN_Y+Math.sin(u*Math.PI)*1.05 - u*.02;
+      _fxQ.setFromAxisAngle(F.spinAxis, u*(Math.PI*2+Math.PI/2));
+      g.quaternion.copy(_fxQ).multiply(F.q0);
+    } else if(t<FLY+LIE){
+      const u=(t-FLY)/LIE;
+      g.position.copy(F.to);
+      g.position.y=PAWN_Y+Math.max(0, Math.sin(Math.min(1,u/.35)*Math.PI))*.12;    // one small bounce, then still
+      _fxQ.setFromAxisAngle(F.spinAxis, Math.PI*2+Math.PI/2);
+      g.quaternion.copy(_fxQ).multiply(F.q0);
+    } else if(t<FLY+LIE+GO){
+      const u=(t-FLY-LIE)/GO;
+      g.scale.setScalar(F.s0*(1-u*u));
+      g.position.y=PAWN_Y+u*.6;
+      if(WISP_TRAIL && Math.random()<.6){ _fxV.copy(g.position); _fxV.y+=.1; WISP_TRAIL.emit(_fxV, F.colour, 1); }
+    } else {
+      if(g.parent) g.parent.remove(g);
+      FLIP_FX.splice(i,1);
+    }
+  }
+}
+
+/* THE FERRY. A Triskeled stone moved by the 2 rune rises off the board, floats
+   to the outer end of its new dance and settles there, its Fae riding on it. The
+   stones it leaves behind close the gap once it is aloft. Called before the
+   board changes; the next syncBoard (the changed board) claims the slides. */
+const FERRY_FX=[];
+function ferryStoneFx(fromTr, k, toTr){
+  try{
+    if(!SCENE || !SCENE.scene || !SCENE.tiles || !STONE_GEO || window.__NORENDER) return;
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if(!G || !G.steps[fromTr] || !G.steps[toTr] || k<1 || k>trackLen(fromTr)) return;
+    const Lf=trackLen(fromTr), Lt=trackLen(toTr), same=fromTr===toTr;
+    const from=tilePos(fromTr,k);
+    const to=slotPoint(toTr, same ? SLOTS-Lf+1 : SLOTS-Lt);          // one slot beyond its new dance's outer stone
+    const expect={}; expect[fromTr]=same ? Lf : Lf-1; if(!same) expect[toTr]=Lt+1;
+    // the stones outside it close up one slot; keyed by their places on the changed board
+    const slides={};
+    if(same) for(let j=2;j<=k;j++) slides[fromTr+'|'+j]=slotPoint(fromTr, SLOTS-Lf+j-1);
+    else     for(let j=1;j<k;j++)  slides[fromTr+'|'+j]=slotPoint(fromTr, SLOTS-Lf+j);
+    // its double: Triskeled face up over its gold edge, a glow beneath
+    const g=new THREE.Group(); g.position.set(from.x, STONE_Y+.001, from.z);
+    const top=new THREE.Mesh(STONE_GEO.top, new THREE.MeshStandardMaterial({map:stoneTex('triskeled'), transparent:true,
+      roughness:.85, metalness:0, alphaTest:.05, emissive:0x3a2a08}));
+    top.rotation.x=-Math.PI/2; top.castShadow=true;
+    const side=new THREE.Mesh(STONE_GEO.side, STONE_SIDE_MAT);
+    side.rotation.x=Math.PI/2; side.position.set(0,0,-STONE_H/2); side.castShadow=true; top.add(side);
+    g.add(top);
+    let glow=null;
+    if(SCENE.conjGlowMat){ glow=new THREE.Sprite(SCENE.conjGlowMat.clone()); glow.scale.set(2.72,2.72,1); glow.position.y=-.06; g.add(glow); }
+    SCENE.scene.add(g);
+    // the real stone is hidden where it leaves and where it will land
+    (SCENE.tiles||[]).forEach(t=>{ if(t.userData.track===fromTr && t.userData.step===k) t.visible=false; });
+    (SCENE.conjHalos||[]).forEach(h=>{ if(h.userData.key===fromTr+'|'+k) h.visible=false; });
+    const key=toTr+'|1';
+    FLIP_HIDE[key]=performance.now()+8000;
+    const d=Math.hypot(to.x-from.x, to.z-from.z);
+    const F={g, glow, from, to, key, slides, expect, riders:{}, t:0, h:0, e:0, cur:{x:from.x, z:from.z},
+      up:.5, mv:.8+d*.05, dn:.5, H:1.25+Math.min(.6,d*.03), claimed:false, slideAt:0, done:false};
+    F.T=F.up+F.mv+F.dn;
+    // the Fae standing on it ride along
+    (SCENE.pawnList||[]).forEach(pg=>{
+      const dx=pg.position.x-from.x, dz=pg.position.z-from.z;
+      if(dx*dx+dz*dz > STONE_R*STONE_R*.92) return;
+      const off={x:dx, z:dz};
+      F.riders[pg.userData.pi+':'+pg.userData.ci]=off;
+      if(pg.userData.anim){ pg.userData.anim.glide=null; pg.userData.anim.ride={F, off}; }
+    });
+    FERRY_FX.push(F);
+  }catch(e){ console.error('ferry fx', e); }
+}
+/* syncBoard: claim a ferry's slides for the changed board, and tell a Fae whether it rides or waits */
+function ferryClaim(){
+  for(const F of FERRY_FX){
+    if(F.claimed || F.done) continue;
+    if(Object.keys(F.expect).every(tr=>G.steps[tr] && trackLen(tr)===F.expect[tr])){ F.claimed=true; F.slideAt=Math.max(F.t, F.up*.7); }
+    else if(F.t>1.5) F.slides={};
+  }
+}
+function ferryRide(key){ for(const F of FERRY_FX) if(!F.done && F.riders[key]) return {F, off:F.riders[key]}; return null; }
+function ferrySlideOf(tileKey){              // the ferry whose gap this stone is closing, if it has yet to move
+  for(const F of FERRY_FX) if(F.claimed && !F.done && F.slides[tileKey] && F.t<F.slideAt) return F;
+  return null;
+}
+const slideDur = dist => Math.min(1.05, .34+dist*.16);     // the same pace as a Fae's glide, so a stone and its Fae move as one
+function ferryWait(){
+  if(!FERRY_FX.length || window.__FAST || window.__NORENDER) return Promise.resolve();
+  const t0=performance.now();
+  return new Promise(res=>{ const tick=()=>{ if(!FERRY_FX.length || performance.now()-t0>4500) res(); else setTimeout(tick, 80); }; tick(); });
+}
+function stepFerryFx(dt){
+  dt=Math.min(dt,.1);                     // a slow frame still keeps time; a hidden tab doesn't leap
+  for(let i=FERRY_FX.length-1;i>=0;i--){
+    const F=FERRY_FX[i]; F.t+=dt;
+    const t=F.t;
+    // the flight: up, across, down
+    let h, e, lift;
+    if(t<F.up){ const u=t/F.up; e=0; lift=1-Math.pow(1-u,3); h=F.H*lift; }
+    else if(t<F.up+F.mv){ const u=(t-F.up)/F.mv; e=u<.5 ? 2*u*u : 1-Math.pow(-2*u+2,2)/2; lift=1; h=F.H+Math.sin(u*Math.PI)*.3; }
+    else { const u=Math.min(1,(t-F.up-F.mv)/F.dn); e=1; lift=1-u*u*(3-2*u); h=F.H*lift; }
+    F.e=e; F.h=h;
+    F.cur.x=F.from.x+(F.to.x-F.from.x)*e; F.cur.z=F.from.z+(F.to.z-F.from.z)*e;
+    F.g.position.set(F.cur.x, STONE_Y+.001+h, F.cur.z);
+    F.g.rotation.set(Math.sin(t*2.3)*.07*lift, 0, Math.cos(t*1.9)*.07*lift);    // a slow sway while aloft
+    if(F.glow){ F.glow.scale.setScalar(2.72*(1+.35*lift)); F.glow.material.opacity=.7+.3*lift; }
+    if(WISP_TRAIL && lift>.15 && Math.random()<.7){
+      const a=Math.random()*6.283, r=STONE_R*(.3+Math.random()*.6);
+      _fxV.set(F.cur.x+Math.cos(a)*r, STONE_Y+h-.08, F.cur.z+Math.sin(a)*r);
+      WISP_TRAIL.emit(_fxV, 0xf2c55a, 1);
+    }
+    // the stones it left close up behind it
+    if(F.claimed){
+      const move=(o, k)=>{ const s=F.slides[k]; if(!s) return false;
+        const [tr, st]=k.split('|'), dst=tilePos(tr, +st), dur=slideDur(Math.hypot(dst.x-s.x, dst.z-s.z));
+        let u=Math.max(0, Math.min(1, (t-F.slideAt)/dur)); u=u<.5 ? 2*u*u : 1-Math.pow(-2*u+2,2)/2;
+        o.position.x=s.x+(dst.x-s.x)*u; o.position.z=s.z+(dst.z-s.z)*u; return true; };
+      if(Object.keys(F.expect).every(tr=>G.steps[tr] && trackLen(tr)===F.expect[tr])){
+        (SCENE.tiles||[]).forEach(o=>move(o, o.userData.track+'|'+o.userData.step));
+        (SCENE.conjHalos||[]).forEach(o=>move(o, o.userData.key));
+      }
+    }
+    if(t>=F.T){
+      F.done=true;
+      if(WISP_TRAIL) for(let m=0;m<14;m++){ const a=m/14*6.283;
+        _fxV.set(F.to.x+Math.cos(a)*STONE_R*.95, STONE_Y+.12, F.to.z+Math.sin(a)*STONE_R*.95);
+        WISP_TRAIL.emit(_fxV, 0xf2c55a, 1); }
+      SCENE.scene.remove(F.g);
+      F.g.traverse(o=>{ if(o.material && o.material!==STONE_SIDE_MAT) o.material.dispose(); });
+      delete FLIP_HIDE[F.key];
+      const [tr]=F.key.split('|');
+      (SCENE.tiles||[]).forEach(o=>{ if(o.userData.track===tr && o.userData.step===1) o.visible=true; });
+      (SCENE.conjHalos||[]).forEach(o=>{ if(o.userData.key===F.key) o.visible=true; });
+      (SCENE.pawnList||[]).forEach(pg=>{ const A=pg.userData.anim; if(A && A.ride && A.ride.F===F){ A.ride=null; pg.position.copy(A.home); } });
+    }
+    // the gap has closed and it has landed
+    if(F.done && (!F.claimed || t>=F.slideAt+1.1)) FERRY_FX.splice(i,1);
+  }
+}
+
 const _glideV=new THREE.Vector3();
 function animateFaeries(ts, dt){
   const list=SCENE.pawnList; if(!list) return;
@@ -5239,11 +5595,21 @@ function animateFaeries(ts, dt){
     if(!A) continue;
     const ph=A.phase;
 
+    // riding a ferried stone: stand on it as it floats
+    if(A.ride){
+      const R=A.ride, F=R.F;
+      if(F.done){ A.ride=null; g.position.copy(A.home); }
+      else{
+        const ex=A.home.x-F.to.x, ez=A.home.z-F.to.z;       // where it stands once the stone has landed
+        g.position.set(F.cur.x+R.off.x+(ex-R.off.x)*F.e, PAWN_Y+F.h+Math.sin(ts*1.5+ph)*.022, F.cur.z+R.off.z+(ez-R.off.z)*F.e);
+      }
+    }
     // the glide: a step taken is a step danced, trailing light behind it
-    if(A.glide){
+    else if(A.glide){
       const gl=A.glide;
-      gl.t+=dt/gl.dur;
-      if(gl.t>=1){
+      if(gl.wait && !gl.wait.done && gl.wait.t<gl.wait.slideAt){      // waiting for its stone to move
+        g.position.x=gl.from.x; g.position.z=gl.from.z; g.position.y=PAWN_Y+Math.sin(ts*1.5+ph)*.022;
+      }else if((gl.wait=null, gl.t+=dt/gl.dur)>=1){
         g.position.copy(gl.to); A.glide=null;
       }else{
         const e=gl.t<.5 ? 2*gl.t*gl.t : 1-Math.pow(-2*gl.t+2,2)/2;   // ease in-out
@@ -5396,6 +5762,14 @@ function readyAllGlamours(){
 }
 async function trackComplete(owner, actor, cand){
   const track=cand.track;
+  danceGlow(track, true); netDanceFx(track, true);
+  try{ await trackCompleteInner(owner, actor, cand, track); }
+  finally{ danceGlow(track, false); netDanceFx(track, false); }
+}
+function netDanceFx(tr, on){
+  try{ if(typeof NET!=='undefined' && NET.role==='host' && NET.inGame) netAll({type:'fx', kind:'dance', tr, on}); }catch(e){}
+}
+async function trackCompleteInner(owner, actor, cand, track){
   cand.track=null; cand.steps=0;
   cand.spent=true;   // it has danced its dance: it may dance again, but not complete
   log(`${fmtPs(owner)} Fae returns to the reserve: it may dance again this turn, but it cannot complete another dance.`, 'sys');
@@ -8757,9 +9131,17 @@ function snapG(viewSeat){
 }
 function applyState(s){
   const modeId=s.modeId; delete s.modeId;
+  // stones the host has just Triskeled: play their flip here too (before the board is rebuilt)
+  const flips=[];
+  if(G && G.steps && s.steps && G.mode===modeById(modeId))
+    for(const tr in s.steps){ const a=G.steps[tr], b=s.steps[tr]; if(!a || !b || a.length!==b.length) continue;
+      const up=[], down=[];
+      b.forEach((st,i)=>{ if(!st || !a[i]) return; if(st.c && !a[i].c) up.push([tr,i+1]); if(!st.c && a[i].c) down.push(i); });
+      if(!down.length) flips.push(...up); }
   s.mode=modeById(modeId);
   G=s;
   TRACKS=G.mode.tracks;
+  if(flips.length<=3) flips.forEach(([tr,k])=>flipStoneFx(tr,k));
   syncBoard(); renderHUD();
 }
 /* Guest: a state broadcast that lands while a board prompt (stone pick or
@@ -9449,6 +9831,10 @@ function guestHandle(msg){
     log(`You sit at seat ${msg.seat+1}. You belong to the ${fmtH(G.players[MY_SEAT].house)}. Your Radiance faces away from you: dance blind, or find a way to glimpse it.`, 'sys');
     return;
   }
+  if(msg.type==='fx'){
+    if(NET.inGame && msg.kind==='ferry') ferryStoneFx(msg.from, msg.k, msg.to);
+    if(NET.inGame && msg.kind==='dance') danceGlow(msg.tr, !!msg.on);
+    return; }
   if(msg.type==='state'){ if(NET.inGame){ if(PICK||MOVE) NET.pendingState=msg.g; else applyState(msg.g); } return; }
   if(msg.type==='rpc'){ guestRPC(msg); return; }
   if(msg.type==='chatline'){ if(NET.inGame) chatLine(msg.html); return; }
@@ -11944,6 +12330,10 @@ const HOOKS = {
   // human decisions (the UI replaces these)
   turn: null, wispCourt: null, action: null, reveal: null, coldIron: null, blight: null,
   callBreak: null, pairing: null, move: null,
+  flipFx: null,          // the board's flip animation (the UI sets it)
+  ferryFx: null,         // the board's ferry animation (the UI sets it)
+  danceFx: null,         // a completed dance lights its Court (the UI sets it)
+  fxWait: null,          // resolves once the board's animations have landed
 };
 const MAGNAME = { ColdIron: 'Cold Iron', Lure: 'Wisp-Lure', WCall: 'Wisp-Call', Snuff: 'Snuff Out', Scry: 'Scrying Pool' };
 const CLAIMNAME = ['Claim 1', 'Claim 2', 'Claim 3'];
@@ -12103,6 +12493,7 @@ async function tellRecap(S, final) {
 
 /* ---------- board moves ---------- */
 async function ferry(S, actor, t, k, u) {
+  if (HOOKS.ferryFx) { try { HOOKS.ferryFx(S, t, k, u); } catch (e) {} }
   const riders = [];
   for (const q of S.P) for (const f of q.fae) if (f.t === t && f.s === k + 1) { riders.push(f); f.t = -9; }
   S.tr[t].splice(k, 1);
@@ -12114,6 +12505,7 @@ async function ferry(S, actor, t, k, u) {
   if (S.rec && S.rec.p === actor && !S.rec.ferry) S.rec.ferry = { t, u, riders: riders.length };
   say(S, `${nm(actor)} ${actor.human ? 'move' : 'moves'} a Triskeled stone to the outer end of the <b>${COURT[u]} Dance</b>${riders.length ? ', carrying its Fae along' : ''}.`, actor.human ? undefined : 'log');
   await sync(S, 'board');
+  if (HOOKS.fxWait) { try { await HOOKS.fxWait(); } catch (e) {} }
   for (const q of S.P) for (const f of q.fae) if (f.t >= 0 && f.s >= L(S, f.t)) {
     const tt = f.t; f.t = -1; f.s = 0; f.sp = true;
     await completeDance(S, q, tt);
@@ -12123,6 +12515,7 @@ async function ferry(S, actor, t, k, u) {
 function doFlip(S, actor, t, k) {
   const victims = [];
   for (const q of S.P) for (const f of q.fae) if (f.t === t && f.s === k + 1) victims.push(q);
+  if (HOOKS.flipFx) { try { HOOKS.flipFx(S, t, k); } catch (e) {} }
   flipStone(S, actor, t, k);
   if (S.rec && S.rec.p === actor && !S.rec.flip) S.rec.flip = { t, k, victims };
   const quietAI = actor.human ? undefined : 'log';   // the AI's flip is told in its recap
@@ -12327,6 +12720,11 @@ function aiPutForward(S, p, H, ks) {
 
 /* ---------- a completed dance ---------- */
 async function completeDance(S, p, t) {
+  if (HOOKS.danceFx) { try { HOOKS.danceFx(S, t, true); } catch (e) {} }
+  try { await completeDanceInner(S, p, t); }
+  finally { if (HOOKS.danceFx) { try { HOOKS.danceFx(S, t, false); } catch (e) {} } }
+}
+async function completeDanceInner(S, p, t) {
   S.S.comp[p.i]++;
   if (S.rec && S.rec.p === p) await tellRecap(S, false);
   say(S, `${p.human ? 'Your' : nm(p) + '’s'} Fae completes the <b>${COURT[t]} Dance</b>!`, 'done');
@@ -13051,6 +13449,10 @@ const wispSub = h => {
 
 /* ---------- hooks: what the person decides ---------- */
 const H = D.HOOKS;
+H.flipFx = (_, t, k) => { if (typeof flipStoneFx === 'function') flipStoneFx(TRACKS[t], k + 1); };
+H.ferryFx = (_, t, k, u) => { if (typeof ferryStoneFx === 'function') ferryStoneFx(TRACKS[t], k + 1, TRACKS[u]); };
+H.fxWait = () => (typeof ferryWait === 'function' ? ferryWait() : Promise.resolve());
+H.danceFx = (_, t, on) => { if (typeof danceGlow === 'function') danceGlow(TRACKS[t], on); };
 H.sync = async () => { redraw(); if (S && !S.P[S.turn].human) await newsDrain(); };
 H.pause = async (_, ms) => { await sleep(ms); };
 const NEWS = { q: [], busy: false };
