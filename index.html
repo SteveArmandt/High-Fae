@@ -11739,6 +11739,8 @@ const BASE_STRAT = {
   placement: 'smart',   // 'smart' | 'self'
   samples: 12,
   random: false,
+  fitSeek: true,        // no live Claim fits an open Court: dig for one (Rune 3) or swap one in (Mountain)
+  fitReclaim: true,    // ...and with Rune 3 spent, Skip & Reclaim to have it back next turn
   swapScope: 'any',     // 'any' | 'own' (only re-pair your own cards)
 };
 const STRATS = {
@@ -12045,7 +12047,27 @@ function actionOptions(G, p, t, V, ev, base) {
       }
     }
   }
+  if (s.fitSeek && t === 2 && needsFit(G, p)) for (const o of opts) if (o.type === 'cswap' && swapGivesFit(G, p, V, o.x, o.y)) o.v += FIT_BONUS;
   return opts;
+}
+/* A Claim can only win the Court on its card, so a player whose live Claims fit no open Court
+   can win nothing more. They should be looking for a card that fits. */
+const FIT_BONUS = 3;
+function openCourts(G) { return [0, 1, 2].filter(h => !G.closed[h]); }
+function needsFit(G, p) {
+  const open = openCourts(G);
+  const live = p.claims.filter(c => !c.sp);
+  return open.length > 0 && live.length > 0 && !live.some(c => open.some(h => inCourt(G, c.c, h)));
+}
+/* Would this Mountain swap put a Court card I know fits an open Court into one of my live Claims? */
+function swapGivesFit(G, p, V, x, y) {
+  const open = openCourts(G);
+  for (const [a, b] of [[x, y], [y, x]]) {
+    if ((a / 3 | 0) !== p.i || (b / 3 | 0) === p.i) continue;   // a: my slot, b: the rival's
+    const id = V.oC[b % 3];
+    if (!p.claims[a % 3].sp && id >= 0 && open.some(h => inCourt(G, id, h))) return true;
+  }
+  return false;
 }
 function locked(G, p, slot) {
   // a card the rival moved with a River swap on their last turn is guarded until this turn ends
@@ -12280,6 +12302,7 @@ function powerOptions(G, p, v, dv) {
         else { const W = cloneView(V); W.mC[k] = -1; after = posValue(W, evalView(W, s.samples, base)); }
         let v2 = after - pv0;
         if (G.closed[cH(p.claims[k].c)]) v2 += 0.25;       // revive a dead Claim
+        if (s.fitSeek && needsFit(G, p)) v2 += FIT_BONUS;    // nothing fits: dig for a card that does
         out.push({ kind: 'redrawOwnC', k, v: v2 - 0.05 });
       }
     }
@@ -12363,7 +12386,7 @@ function newDuel(opts) {
     log: null, pending: [], callDepth: 0, S: newStats(), history: [],
   };
   const rad = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9], rng);
-  // Court cards are dealt six each before play; each player keeps three (draftCourts).
+  // Court cards are not dealt: the Titles are drafted before play (draftTitles). No Princess in the Duel.
   for (let i = 0; i < 2; i++) {
     const claims = [];
     for (let k = 0; k < 3; k++) claims.push({ r: rad.pop(), c: -1, sp: false });
@@ -12384,39 +12407,46 @@ function newDuel(opts) {
   refresh(S);
   return S;
 }
-/* Setup: the twelve Court cards are shuffled and dealt, six to each player. Each player
-   chooses three in secret and returns the other three; the six returned are shuffled as
-   the Court pile. The rival learns nothing of the choice. */
-const TITLE_VAL = [2.2, 3, 1.2, 1.6];          // Queen, King, Prince, Princess: the King strongest in AI-vs-AI tests
-function keepValue(ids, pol) {
-  let v = 0, kings = 0;
-  for (const id of ids) { const t = cT(id); if (t === 1) { v += kings ? 0.6 : TITLE_VAL[1]; kings++; } else v += TITLE_VAL[t]; }   // Kings don't add up
-  const spread = pol === 'titles' ? 0 : (pol && pol.spread != null ? pol.spread : 1);
-  return v + (new Set(ids.map(cH)).size - 1) * spread;               // Claims across the Courts
+/* Setup: the twelve Court cards are sorted by Title into four piles (Queens, Kings,
+   Princes, Princesses). Each pile is shuffled face down, so a pile shows its Title but
+   not the Court on any card. Players take the top card of a pile, saying aloud which
+   Title they took: first player 1, second player 2, first player 1, second player 1,
+   first player 1. A player may take only one card from each pile, so each ends with
+   three different Titles. The six cards left over are shuffled as the Court redraw deck. */
+const DRAFT_SEQ = [0, 1, 1, 0, 1, 0];          // 0 = the first player, 1 = the second
+function draftSeq(S) { return (S.draftSeqOverride || DRAFT_SEQ).map(x => (x === 0 ? S.first : 1 - S.first)); }
+/* AI: which Title to take. The House is hidden, so only the Title can be chosen.
+   In AI-vs-AI tests the King was by far the strongest Title (no King: 40% wins, one: 55%),
+   so Thistle takes its King first, then a Queen, then a Princess (see DRAFT_PREF). */
+const DRAFT_PREF = [1, 0, 3, 2];               // King, Queen, Princess, Prince
+function aiDraftPick(S, p, avail, mine) {
+  const pol = p.s.draft || 'greedy';
+  if (pol === 'random') return avail[(S.rng() * avail.length) | 0];
+  const held = mine.map(cT);
+  const fresh = avail.filter(t => !held.includes(t));
+  const pool = pol === 'greedy' || (pol.greedy) ? avail : (fresh.length ? fresh : avail);
+  if (pol === 'distinct') return pool[(S.rng() * pool.length) | 0];
+  const pref = Array.isArray(pol) ? pol : (pol.pref || DRAFT_PREF);
+  return pool.slice().sort((a, b) => pref.indexOf(a) - pref.indexOf(b))[0];
 }
-function aiKeepPick(S, p, hand) {
-  const pol = p.s.keep || 'smart', combos = [];
-  for (let a = 0; a < hand.length; a++) for (let b = a + 1; b < hand.length; b++) for (let c = b + 1; c < hand.length; c++) combos.push([hand[a], hand[b], hand[c]]);
-  if (pol === 'random') return combos[(S.rng() * combos.length) | 0];
-  let best = combos[0], bv = -1e9;
-  for (const k of combos) { const v = keepValue(k, pol) + S.rng() * 1e-6; if (v > bv) { bv = v; best = k; } }
-  return best;
-}
-async function draftCourts(S) {
-  const deck = shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], S.rng);
-  const hands = [deck.slice(0, 6), deck.slice(6)], keep = [null, null];
-  for (const p of S.P) {
-    const hand = hands[p.i];
-    let k = isHuman(p) && HOOKS.draft ? await HOOKS.draft(S, p, { hand: hand.slice() }) : aiKeepPick(S, p, hand);
-    if (!Array.isArray(k) || k.length !== 3 || new Set(k).size !== 3 || !k.every(id => hand.includes(id))) k = aiKeepPick(S, p, hand);
-    keep[p.i] = k;
+async function draftTitles(S) {
+  const piles = [0, 1, 2, 3].map(t => shuffle([0, 1, 2].map(h => h * 4 + t), S.rng));
+  const picks = [[], []], seen = [];
+  for (const i of draftSeq(S)) {
+    const p = S.P[i];
+    const avail = [0, 1, 2, 3].filter(t => piles[t].length && !picks[i].some(id => cT(id) === t));   // one card per pile each
+    let t;
+    if (isHuman(p) && HOOKS.draft) t = await HOOKS.draft(S, p, { avail, sizes: piles.map(x => x.length), picks: picks.map(x => x.slice()), seen: seen.slice(), seq: draftSeq(S) });
+    else t = aiDraftPick(S, p, avail, picks[i]);
+    if (!avail.includes(t)) t = avail[0];
+    const id = piles[t].pop();
+    picks[i].push(id); seen.push({ i, t });
+    say(S, p.human ? `You take a <b>${TITLE[t]}</b>: the ${cardName(id)}.` : `${nm(p)} takes a <b>${TITLE[t]}</b>.`);
+    if (!isHuman(p)) await pause(S, 650);
   }
-  for (const p of S.P) {
-    keep[p.i].forEach((id, j) => { p.claims[j].c = id; });
-    say(S, p.human ? `You keep the ${keep[p.i].map(cardName).join(', ').replace(/, ([^,]*)$/, ' and $1')}.` : `${nm(p)} keeps three Court cards.`);
-  }
-  S.courtDeck = shuffle(hands.flatMap((h, i) => h.filter(id => !keep[i].includes(id))), S.rng);
-  S.drafted = keep; S.draftSeen = [];
+  for (const p of S.P) picks[p.i].forEach((id, k) => { p.claims[k].c = id; });
+  S.courtDeck = shuffle([].concat(...piles), S.rng);
+  S.drafted = picks; S.draftSeen = seen;
   refresh(S);
   await sync(S, 'claims');
 }
@@ -13061,7 +13091,8 @@ async function aiTurn(S, p) {
       for (const x of powerOptions(S, p, v, dv)) opts.push({ v, kind: x.kind, sc: base + x.v - 0.05 * v, arg: x });
     }
   }
-  if (p.disc.length) opts.push({ kind: 'skip', sc: posValueNoMove(S, p) + 0.07 * p.disc.reduce((a, b) => a + b, 0) - 0.38 });
+  if (p.disc.length) opts.push({ kind: 'skip', sc: posValueNoMove(S, p) + 0.07 * p.disc.reduce((a, b) => a + b, 0) - 0.38
+    + (p.s.fitReclaim && needsFit(S, p) && !p.hand.includes(3) && p.disc.includes(3) && canCourt(S) ? FIT_BONUS * 0.6 : 0) });
   let best = opts[0];
   for (const x of opts) if (x.sc > best.sc) best = x;
   await pause(S, 450);
@@ -13085,7 +13116,7 @@ async function aiTurn(S, p) {
 
 /* ---------- the game ---------- */
 async function run(S) {
-  await draftCourts(S);
+  await draftTitles(S);
   await setupPairings(S);
   await sync(S, 'start');
   say(S, `${nm(S.P[S.turn])} ${S.P[S.turn].human ? 'dance' : 'dances'} first.`, 'sys');
@@ -13119,8 +13150,8 @@ async function run(S) {
 const api = {
   HOOKS, COURT, TITLE, MAGNAME, cH, cT, L, opp, supply, newDuel, run, liveCourtCards, hasKing, princeWard,
   declarable, doDeclare, doSkip, spendRune, runePower, doFlip, ferry, humanMove, humanMagik, playableMagik,
-  doAction, legalActions, cardName, slotPhrase, refillIfEmpty, canRad, canCourt, say, sync, inCourt, PNEXT, liveClaims,
-  draftCourts, setupPairings, doCall,
+  doAction, legalActions, cardName, slotPhrase, refillIfEmpty, canRad, canCourt, say, sync, draftSeq, DRAFT_SEQ, inCourt, PNEXT, liveClaims,
+  draftTitles, setupPairings, doCall,
 };
 if (typeof module !== 'undefined' && module.exports) module.exports = api;
 if (typeof window !== 'undefined') window.DUEL = api;
@@ -13518,21 +13549,19 @@ const TPOWER = [
   'her Claim also counts for the next Court on her card'];
 const PRINCESS_PATH = 'River → Mountain, Forest → River, Mountain → Forest';
 const listCards = ids => ids.map(id => `the <b>${D.cardName(id)}</b>`).join(', ').replace(/, ([^,]*)$/, ' and $1');
-H.draft = async (_, p, { hand }) => {
+const rivalTitles = seen => seen.filter(x => x.i === 1).map(x => D.TITLE[x.t]);
+H.draft = async (_, p, { avail, sizes, picks, seen, seq }) => {
   UI.phase = 'setup'; render();
-  let kept = [];
-  while (kept.length < 3) {
-    const left = hand.filter(id => !kept.includes(id));
-    const desc = (kept.length ? `You keep ${listCards(kept)}.<br>Keep ${3 - kept.length} more. The rest go back to the Court pile.`
-      : `You are dealt six Court cards. Keep 3: each becomes a Claim.<br>The rest go back to the Court pile.`)
-      + `<br>Your face-down Radiance is <b>${p.claims[2].r}</b>.`;
-    const opts = left.map(id => ({ label: D.cardName(id), sub: TPOWER[D.cT(id)][0].toUpperCase() + TPOWER[D.cT(id)].slice(1), value: id }));
-    if (kept.length) opts.push({ label: 'Start over', value: 'reset', cls: 'passopt' });
-    const v = await ask(`Keep a Court card (${kept.length + 1} of 3)`, desc, opts);
-    if (v === 'reset') kept = [];
-    else if (left.includes(v)) kept.push(v);
-  }
-  return kept;
+  const n = seen.length, mine = picks[0], theirs = rivalTitles(seen);
+  let run = 0; for (let j = n; j < seq.length && seq[j] === 0; j++) run++;
+  let desc = '';
+  desc += theirs.length ? `${RIVAL} has: <b>${theirs.join(', ')}</b>.<br>` : '';
+  desc += mine.length ? `You have ${listCards(mine)}.<br>` : '';
+  desc += `Pick ${mine.length + 1} of 3${run > 1 ? ' (two in a row)' : ''}. One card per pile; its Court is hidden until you take it.`;
+  return ask('Choose a Title', desc, avail.map(t => ({
+    label: `${D.TITLE[t]}`,
+    sub: `${TPOWER[t][0].toUpperCase() + TPOWER[t].slice(1)}`,
+    value: t })));
 };
 function cardSub(id) {
   const h = D.cH(id);
@@ -13541,7 +13570,8 @@ function cardSub(id) {
 H.pairing = async (_, p) => {
   UI.phase = 'setup'; render();
   const cards = p.claims.map(c => c.c), hidden = p.claims[2].r;
-  const desc = `Your face-down Radiance is <b>${hidden}</b>. Which Court card goes behind it? The other two go behind your stands.`;
+  const theirs = rivalTitles(S.draftSeen || []);
+  const desc = `Your face-down Radiance is <b>${hidden}</b>. Which Court card goes behind it? The other two go behind your stands at random.`;
   return ask('Pair your face-down Claim', desc, cards.map((id, j) => ({ label: D.cardName(id), sub: cardSub(id), value: j })));
 };
 H.wispCourt = async (_, p, { open, why }) => {
@@ -13773,13 +13803,12 @@ const DUEL_RULES = `
   <p><b>Claims.</b> Each player has three Claims: a Radiance card with a Court card behind it. A Radiance counts only for its own Court card.</p>
   <p><b>Facing.</b> Two Radiance cards stand facing your rival: they see them, you don’t. The third lies face down: only you see it. You see your own Court cards.</p>
   <h4>SETUP</h4>
-  <p><b>Radiance.</b> Deal three Radiance cards each: two in your stands, facing your rival, and one face down that only you see. The three left form the Radiance pile.</p>
-  <p><b>Draft.</b> Shuffle the twelve Court cards and deal six to each player. Each player chooses three and returns the rest to the Court pile. Shuffle the Court pile.</p>
-  <p><b>Pairing.</b> Place one chosen Court card behind your face-down Radiance, and the other two behind your stands, in any order.</p>
+  <p><b>Draft.</b> Sort the twelve Court cards by Title into four face-down piles. Take the top card of a pile, one card per pile, in this order: first player 1, second 2, first 1, second 1, first 1. Picks are announced. The six left over form the Court pile.</p>
+  <p><b>Pair.</b> Deal three Radiance cards each. Choose the Court card behind your face-down Radiance; the other two go behind your stands at random.</p>
   <h4>CALLS</h4>
   <p>You may Call a Court holding <b>6 Wisps</b> after completing a dance, if you hold a Court card for it. The <b>8th Wisp</b> forces a Call. Magik may break a Call by luring or snuffing a Wisp.</p>
   <p>Each player puts <b>one</b> Claim forward, chosen in secret. The player who Called must choose a Claim for that Court; at other Calls, any Claim. The higher Claim for that Court wins it. Both Claims leave the game; the others stay.</p>
-  <p>If an 8th Wisp forces a Call and neither revealed Claim is for that Court, the Call fails and it drops to 5. Both Claims stay.</p>
+  <p>If an 8th Wisp forces a Call and neither revealed Claim is for that Court, the Call fails and it drops to 5. Both Claims stay. If no one holds a Claim for that Court, the Call fails and it drops to 5.</p>
   <p>A won Court is closed to Wisps; its dance and Favors still work.</p>
   <h4>POWERS</h4>
   <p>A card moved into a Claim takes that Claim’s facing. A peek is one look.<br>
@@ -13834,17 +13863,19 @@ async function startDuelTutorial() {
       `Two players. Win <b>two of the three Courts</b>.<p></p>This covers what the Duel changes. Dances, Runes and Wisps work as in High Fae.`, 'Begin')],
     ['The Draft', async () => {
       await tutSeg([
-        { title: 'Choose three',
-          body: `Your Radiance cards are dealt first: two in your stands, facing ${RIVAL}, and one face down that only you see.<p></p>Then you and ${RIVAL} are each dealt <b>six Court cards</b>. Keep <b>three</b>: each becomes a Claim. The rest go back to the Court pile, shuffled.`, next: 'Draft' },
+        { title: 'Choosing Titles',
+          body: `The Court cards lie in four face-down piles: <b>Queens</b>, <b>Kings</b>, <b>Princes</b> and <b>Princesses</b>.<p></p>Take a pile’s top card. Its Court stays hidden until you take it.` },
+        { title: 'The order',
+          body: `${RIVAL} 1, you 2, ${RIVAL} 1, you 1, ${RIVAL} 1.<p></p><b>One card per pile.</b> Every pick is announced.`, next: 'Draft' },
       ]);
       if (TUT.skip) return;
       tutHideOverlay();
-      await D.draftCourts(S);
+      await D.draftTitles(S);
     }],
     ['Pairing', async () => {
       await tutSeg([
         { target: card(2), title: 'Your face-down Radiance',
-          body: `Only you see this number. Choose the Court card that goes behind it.<p></p>The other two go behind your stands.`, next: 'Pair' },
+          body: `Only you see this number. Choose the Court card that goes behind it.<p></p>The other two go behind your stands at random.`, next: 'Pair' },
       ]);
       if (TUT.skip) return;
       tutHideOverlay();
