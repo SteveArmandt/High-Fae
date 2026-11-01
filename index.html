@@ -256,12 +256,30 @@ canvas{display:block;}
 .honor.spent{background:#161022; color:#5a4f78; cursor:default; transform:none; box-shadow:0 1px 3px rgba(0,0,0,.3);}
 .honor.disabled{cursor:default;}
 .honor.disabled:hover{transform:none;}
-/* Faerie Magik pill box: fixed 118x64 footprint (see renderHUD for the sizing rule) */
-#intrigues{width:118px; height:40px; display:flex; flex-direction:row;
-  gap:3px; align-items:center; justify-content:center; overflow:visible;}
-#intrigues .icol{display:flex; flex-direction:column; gap:3px; justify-content:center;}
-#intrigues .intr{border-radius:999px; box-sizing:border-box; padding:0 3px; overflow:hidden; min-width:0;}
-#intrigues .intr .t{white-space:nowrap; overflow:hidden;}
+/* Faerie Magik hand: violet cards with their glyph, as tall as the Court and Radiance cards,
+   fanned inside a fixed footprint (see renderHUD). A kind held twice shows one card and a badge. */
+#intrigues{position:relative; width:118px; height:40px; overflow:visible;}
+.mkcard{position:absolute; top:0; height:100%; padding:4px 1px 3px; box-sizing:border-box; border-radius:5px; border:1px solid #6a58a0;
+  background:radial-gradient(circle at 50% 32%, rgba(224,184,240,.2), transparent 62%), linear-gradient(170deg,#2c2050,#3c2a66);
+  box-shadow:-2px 0 6px rgba(0,0,0,.35), 0 3px 8px rgba(0,0,0,.45), inset 0 0 0 2px rgba(224,184,240,.07);
+  color:#ecdcfa; font-family:var(--disp); display:flex; flex-direction:column; align-items:center; justify-content:space-between;
+  cursor:default; transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;}
+.mkcard svg{width:58%; height:auto; aspect-ratio:1; flex:0 0 auto; stroke:#e0b8f0; fill:#e0b8f0; stroke-width:0;}
+.mkcard svg [fill="none"]{fill:none;}
+.mkcard span{font-size:6.5px; font-weight:700; letter-spacing:.04em; line-height:1; text-transform:uppercase; white-space:nowrap;}
+.mkcard .mkn{position:absolute; top:-6px; left:-6px; min-width:14px; height:14px; padding:0 3px; box-sizing:border-box; border-radius:7px;
+  background:#f0d98a; color:#241a33; font-style:normal; font-family:var(--disp); font-size:8px; font-weight:900; line-height:14px; text-align:center;
+  box-shadow:0 1px 3px rgba(0,0,0,.55);}
+/* fanned: each card shows its glyph and badge; only the front card and the hovered one show a name */
+#intrigues.fan .mkcard span{visibility:hidden;}
+#intrigues.fan .mkcard:last-child span, #intrigues.fan .mkcard:hover span{visibility:visible;}
+.mkcard.live{border-color:#f0d98a; cursor:pointer;
+  box-shadow:-2px 0 6px rgba(0,0,0,.35), 0 0 0 1px rgba(240,217,138,.5), 0 0 9px rgba(224,184,240,.4), 0 3px 8px rgba(0,0,0,.45);}
+.mkcard:not(.live){filter:saturate(.7) brightness(.78);}
+.mkcard:hover{transform:translateY(-6px); z-index:20 !important;}
+.mkcard:focus-visible{outline:2px solid #f0d98a; outline-offset:2px; z-index:20 !important;}
+.mkslot{position:absolute; left:50%; top:0; height:100%; aspect-ratio:3/4; transform:translateX(-50%); box-sizing:border-box;
+  border:1px dashed rgba(224,184,240,.28); border-radius:5px;}
 .intr{flex:0 0 auto; width:auto; min-height:36px; border-radius:5px; border:1px solid #5a4a86; cursor:pointer; padding:0 10px; position:relative; overflow:visible;
   background:linear-gradient(170deg,#2c2050,#3c2a66); color:#e8d9f8; box-shadow:0 3px 8px rgba(0,0,0,.4);
   display:flex; align-items:center; justify-content:center; text-align:center; transition:box-shadow .12s ease, border-color .12s ease;}
@@ -731,10 +749,25 @@ body.duelmode #rivals, body.duelmode #docktoggle, body.duelmode #supplybadge{dis
 .dcard.dec{box-shadow:0 0 0 1px #f0d98a inset, 0 0 6px rgba(240,217,138,.35);}
 .dctl{flex:1; display:flex; flex-direction:column; gap:6px; min-width:0;}
 .drunes{display:flex; gap:6px;}
-.drune{font-family:var(--disp); font-size:17px; color:#f0d98a;}
-.drune.played{opacity:.28;}
-.drune:disabled{cursor:default; filter:saturate(.6);}
-.drune:not(:disabled){box-shadow:0 0 7px rgba(240,217,138,.45);}
+/* Duel Runes wear the High Fae hand's marks (spiral stones, numeral, power glyph); the hover tip explains them */
+.drune .lure{pointer-events:none;}
+.drune .lure::after, .drune .lure::before{display:none;}
+.drune.live{box-shadow:0 0 0 1px rgba(240,217,138,.55), 0 0 9px rgba(240,217,138,.45), 0 3px 8px rgba(0,0,0,.4);}
+.drune.spent .lure svg{stroke:#5a4f78;}
+/* Faerie Magik: small violet cards with their glyph, nothing like the turn buttons */
+.dmagcard{width:46px; height:56px; padding:6px 2px 4px; box-sizing:border-box; border-radius:6px; border:1px solid #6a58a0;
+  background:radial-gradient(circle at 50% 30%, rgba(224,184,240,.18), transparent 60%), linear-gradient(170deg,#2c2050,#3c2a66);
+  box-shadow:0 3px 8px rgba(0,0,0,.45), inset 0 0 0 2px rgba(224,184,240,.07);
+  color:#ecdcfa; font-family:var(--disp); display:flex; flex-direction:column; align-items:center; justify-content:space-between;
+  cursor:default; position:relative; transition:transform .1s ease, box-shadow .12s ease, border-color .12s ease;}
+.dmagcard svg{width:22px; height:22px; flex:0 0 auto; stroke:#e0b8f0; fill:#e0b8f0; stroke-width:0;}
+.dmagcard svg [fill="none"]{fill:none;}
+.dmagcard span{font-size:7.5px; font-weight:700; letter-spacing:.03em; line-height:1.05; text-align:center; text-transform:uppercase;}
+.dmagcard.live{border-color:#f0d98a; cursor:pointer;
+  box-shadow:0 0 0 1px rgba(240,217,138,.55), 0 0 10px rgba(224,184,240,.45), 0 3px 8px rgba(0,0,0,.45);}
+.dmagcard.live:hover{transform:translateY(-5px);}
+.dmagcard:not(.live){opacity:.6; filter:saturate(.7);}
+.dmagcard:focus-visible{outline:2px solid #f0d98a; outline-offset:2px;}
 .dfaes,.dmags,.dbtns{display:flex; gap:6px; flex-wrap:wrap; align-items:center;}
 #duelhud .btn{font-size:11px; padding:4px 9px;}
 #duelhud .btn:disabled{opacity:.4; cursor:default;}
@@ -759,7 +792,8 @@ body.duelmode #rivals, body.duelmode #docktoggle, body.duelmode #supplybadge{dis
   .dcard .dcourt{font-size:9px; min-height:22px;}
   .dcard .dlab{font-size:8px;}
   .dct{min-width:56px; padding:1px 6px 2px;}
-  .drune{width:34px; height:34px; font-size:15px;}
+  .drune{width:34px; height:38px;}
+  .dmagcard{width:42px; height:52px;}
   .dlog{max-height:34px;}
 }
 @media (max-width:560px){
@@ -780,7 +814,10 @@ body.duelmode #rivals, body.duelmode #docktoggle, body.duelmode #supplybadge{dis
   .dcard .dcourt{font-size:8px; min-height:20px;}
   .dcard .dcourt b{font-size:8px;}
   .drunes{gap:4px;}
-  .drune{width:30px; height:30px; font-size:14px;}
+  .drune{width:30px; height:34px;}
+  .dmagcard{width:38px; height:48px; padding:4px 2px 3px;}
+  .dmagcard svg{width:18px; height:18px;}
+  .dmagcard span{font-size:6.5px;}
   #duelhud .btn{font-size:10px; padding:3px 6px;}
   .dct{min-width:0; padding:1px 5px 2px;}
   .dct b{font-size:9px;} .dct span{font-size:9px;}
@@ -921,6 +958,8 @@ body.duelmode #banner{display:none !important;}
 @media (max-width:820px), (pointer:coarse){ .dcard.gone{min-height:66px;} }
 @media (max-width:560px){ .dcard.gone{min-height:60px;} .cpk-card.gone{min-height:96px;} }
 
+@media (pointer:coarse){ #intrigues{height:32px;} }
+@media (max-width:640px){ #intrigues{height:34px;} }
 </style>
 <style>:root{--vh:calc(var(--vh) * 1);}</style>
 <script>
@@ -4538,50 +4577,42 @@ function renderHUD(){
     hd.appendChild(c);
   }
   const it=$('#intrigues'); it.innerHTML='';
-  /* FAERIE MAGIK HAND — the fixed-footprint pill box.
-     Invariant: the hand occupies a 118x40px cell (one tile wide, the height of
-     the Court/Radiance cards) and NEVER grows; more cards mean smaller pills.
-       - 1 card   -> one full-width pill (118px)
-       - 2+ cards -> two columns of half-width pills (57px), first half left
-       - pill height: rows share the 40px (3px gaps), capped at 22px
-       - font: scales with pill height (52%), 9px max, 4.5px min,
-               and capped at 7px in two-column mode so the longest
-               abbreviated name fits a 57px pill
-     Long names abbreviate in two-column mode (ABBR below); hover tooltips
-     always carry the full name and rules text. The eyebrow shows a live
-     count from 3 cards up. */
+  /* FAERIE MAGIK HAND: violet cards with each card's glyph, one per kind (a badge counts
+     doubles), as tall as the Court and Radiance cards. The hand keeps its fixed footprint
+     and never grows the dock: when the kinds outgrow its width they fan, and the hovered
+     card comes to the front. Hover gives the full name and rules text. */
+  { const tip=$('#tip3d'); if(tip && tip.dataset.hud && it.matches(':hover')){ delete tip.dataset.hud; tip.style.display='none'; } }
   const nI=me.intrigues.length;
-  const cols = nI<=1 ? 1 : 2;
-  const rows = Math.max(1, Math.ceil(nI/cols));
-  const pillH = Math.min(22, (40 - 3*(rows-1)) / rows);
-  let pillF = Math.max(4.5, Math.min(9, pillH*0.52));
-  if(cols===2) pillF = Math.min(pillF, 7);
-  let colEls=[it];
-  if(cols===2){
-    colEls=[document.createElement('div'), document.createElement('div')];
-    colEls.forEach(c=>{ c.className='icol'; it.appendChild(c); });
-  }
-  const ABBR = {'Scrying Pool':'Scrying','Snuff Out':'Snuff Out'};
   const eyeb = document.querySelector('#intrcol .eyebrow');
   if(eyeb) eyeb.textContent = 'Faerie Magik' + (nI>2 ? ' \u00d7'+nI : '');
-  me.intrigues.forEach((name,idx)=>{
+  const kinds=[]; me.intrigues.forEach(name=>{ if(!kinds.includes(name)) kinds.push(name); });
+  if(!kinds.length){
+    const s=document.createElement('div'); s.className='mkslot';
+    s.title='No Faerie Magik yet. Draw a card as the action for a completed dance.';
+    it.appendChild(s);
+  }
+  const MK_GLYPH={'Scrying Pool':'mk-scry','Wisp-Lure':'mk-lure','Snuff Out':'mk-snuff','Wisp-Call':'mk-call','Cold Iron':'mk-iron'};
+  const MK_SHORT={'Scrying Pool':'Scry','Wisp-Lure':'Lure','Snuff Out':'Snuff','Wisp-Call':'Call','Cold Iron':'Iron'};
+  const boxW=it.clientWidth||118, boxH=it.clientHeight||40, cw=Math.round(boxH*0.75);
+  const step = kinds.length<=1 ? 0 : Math.min(cw+5, (boxW-cw)/(kinds.length-1));
+  const x0 = Math.max(0, (boxW-(cw+step*(kinds.length-1)))/2);
+  it.classList.toggle('fan', kinds.length>1 && step<cw);
+  kinds.forEach((name,k)=>{
+    const idx=me.intrigues.indexOf(name), count=me.intrigues.filter(x=>x===name).length;
     const b=document.createElement('button');
     const canPlay = HUMAN && HUMAN.kinds.includes('intrigue') && name!=='Cold Iron';
     const canInterrupt = !canPlay && ANYTIME.includes(name) && G && !G.over && !TUT.guide && !TUT.tourActive;
-    b.className='intr'; b.style.opacity=(canPlay||canInterrupt)?1:.55;
-    b.style.width = cols===1 ? '118px' : '57px';
-    b.style.height = pillH.toFixed(1)+'px';
-    b.style.minHeight = '0';
-    b.innerHTML=`<div class="t" style="font-size:${pillF.toFixed(1)}px">${cols===2 ? (ABBR[name]||name) : name}</div>`;
-    
-    let tipText = INTRIGUE_DEFS[name].d;
-    if(!canPlay) {
-        if(canInterrupt) tipText = '(Play anytime, even on rivals\u2019 turns) ' + tipText;
-        else tipText = (name==='Cold Iron' ? '(Played in reaction) ' : '(Playable on your turn) ') + tipText;
-    }
-    // The scrollable card row clips CSS tooltips, so use the fixed floating tip instead.
-    attachTip(b, ()=>tipText);
-    
+    b.className='mkcard'+((canPlay||canInterrupt)?' live':'');
+    b.style.left=(x0+k*step).toFixed(1)+'px'; b.style.width=cw+'px'; b.style.zIndex=String(k+1);
+    b.setAttribute('aria-label', name+(count>1?` (${count} held)`:''));
+    b.innerHTML=`<svg aria-hidden="true"><use href="#${MK_GLYPH[name]||'ic-draw'}"/></svg><span>${MK_SHORT[name]||name}</span>`
+      + (count>1 ? `<i class="mkn">\u00d7${count}</i>` : '');
+    const note = canPlay ? 'Tap to play it.'
+      : canInterrupt ? 'Play it anytime, even on a rival\u2019s turn: tap to interrupt.'
+      : name==='Cold Iron' ? 'Played in answer: you are asked when a rival plays Faerie Magik.'
+      : 'Playable on your turn.';
+    attachRichTip(b, ()=>({head: name+(count>1?` \u00d7${count}`:''), body: INTRIGUE_DEFS[name].d, note}));
+
     if(canPlay) b.onclick=()=>humanEvent({type:'intrigue', name, idx});
     else if(canInterrupt) b.onclick=async ()=>{
       // Don't collide with a dialog already awaiting a decision.
@@ -4602,7 +4633,7 @@ function renderHUD(){
       }catch(e){ if(!(e instanceof GameOver)) throw e; }
       finally{ INTERRUPT_BUSY=false; renderHUD(); }
     };
-    colEls[cols===2 ? (idx<rows?0:1) : 0].appendChild(b);
+    it.appendChild(b);
   });
   const canSkip = HUMAN && HUMAN.kinds.includes('skip') && canRecover(me);
   $('#skipbtn').disabled=!canSkip;
@@ -6047,6 +6078,9 @@ const ACTIONS={
       const kp=q.knownHouses[p.i], kt=q.knownHouses[t.i];
       if(kt!==undefined) q.knownHouses[p.i]=kt; else delete q.knownHouses[p.i];
       if(kp!==undefined) q.knownHouses[t.i]=kp; else delete q.knownHouses[t.i];
+      const pp=q.knownPatrons[p.i], pt=q.knownPatrons[t.i];
+      if(pt!==undefined) q.knownPatrons[p.i]=pt; else delete q.knownPatrons[p.i];
+      if(pp!==undefined) q.knownPatrons[t.i]=pp; else delete q.knownPatrons[t.i];
     });
     if(G.placeEvidence){
       const ev=G.placeEvidence[p.i];
@@ -6515,6 +6549,8 @@ async function callForThroneInner(houseId, caller, isCoup){
    normal placement rules (reaction window, and it can force a Call). */
 async function doDeclare(p){
   p.declared=true;
+  // A declared card lies face up: every rival now knows this Court and Title, as surely as a peek.
+  G.players.forEach(q=>{ if(q!==p){ q.knownHouses[p.i]=p.house; q.knownPatrons[p.i]=p.patron; } });
   log(`${fmtP(p)} <b>declare${p.name==='You'?'':'s'}</b> ${p.name==='You'?'your':'their'} Royal Title: ${fmtPatron(p)}!`, 'alert');
   banner(`${p.i===MY_SEAT?'YOU DECLARE':p.name.toUpperCase()+' DECLARES'}`);
   renderHUD(); syncBoard();
@@ -7758,7 +7794,7 @@ async function aiKingdomAction(p, track){
   }
   // 3) Scout: peek the STRONGEST unknown rival — the one whose allegiance most
   //    changes my win probability either way.
-  const unknown=others(p).filter(o=>!p.knownHouses[o.i]).sort((a,b)=>b.status-a.status);
+  const unknown=others(p).filter(o=>!o.declared && !p.knownHouses[o.i]).sort((a,b)=>b.status-a.status);
   if(unknown.length){ p._target=unknown[0]; return ACTIONS.lookHouse(p); }
   // 4) All known: consider a pure-upgrade swap into a stronger position.
   //    Never for the Queen: a better Court is not worth her gift.
@@ -7772,9 +7808,11 @@ async function aiKingdomAction(p, track){
     });
     if(best){ p._target=best; return ACTIONS.swapHouse(p); }
   }
-  // 5) Nothing better — refresh knowledge of the strongest rival.
-  p._target=others(p).reduce((a,b)=>a.status>b.status?a:b);
-  return ACTIONS.lookHouse(p);
+  // 5) Every rival's Court is already known (peeked or face up), so a peek would teach
+  //    nothing. Take a Faerie Magik card instead; with the deck empty, let the favor pass.
+  if(G.intrigueDeck && G.intrigueDeck.length) return ACTIONS.drawMagik(p);
+  log(`${fmtP(p)} lets the favor pass; every Court is already known.`);
+  return;
 }
 /* Redraw own Court? Only when the current Court is a losing seat: a known
    stronger rival shares it, or win probability there is hopeless. */
@@ -11741,6 +11779,10 @@ const BASE_STRAT = {
   random: false,
   fitSeek: true,        // no live Claim fits an open Court: dig for one (Rune 3) or swap one in (Mountain)
   fitReclaim: true,    // ...and with Rune 3 spent, Skip & Reclaim to have it back next turn
+  keepKing: 0.6,        // deal-six setup: worth of keeping a King (his step is invisible to the Court reckoning)
+  keepPrince: 0.15,     // ...and a Prince (his Wisp and his ward)
+  keepDecl: false,      // ...judge kept Queens and Princesses as if declared (tested worse: off)
+  keepRandom: false,    // ...keep three at random (testing only)
   swapScope: 'any',     // 'any' | 'own' (only re-pair your own cards)
 };
 const STRATS = {
@@ -11841,6 +11883,7 @@ function buildView(G, v) {
   for (const x of V.oR) if (x) usedR[x] = 1;
   for (const x of G.radDisc) usedR[x] = 1;
   V.radPool = []; for (let x = 1; x <= 9; x++) if (!usedR[x]) V.radPool.push(x);
+  V.oppExcl = me.deckKnown && me.deckKnown.length ? me.deckKnown.slice() : null;
   const usedC = new Uint8Array(16);
   for (const x of V.mC) if (x >= 0) usedC[x] = 1;
   for (const x of V.oC) if (x >= 0) usedC[x] = 1;
@@ -11871,6 +11914,10 @@ function evalView(V, K, seed, perClaimCourt) {
   const win = [0, 0, 0], lose = [0, 0, 0];
   const pc = perClaimCourt !== undefined ? [0, 0, 0] : null;
   const rp = V.radPool.slice(), cp = V.courtPool.slice();
+  // cards I know are in the Court pile go last, and the rival's hidden cards are dealt only from the rest
+  const exSet = V.oppExcl ? new Set(V.oppExcl) : null;
+  const exBase = exSet ? cp.filter(id => !exSet.has(id)).concat(cp.filter(id => exSet.has(id))) : null;
+  const exN = exSet ? cp.filter(id => !exSet.has(id)).length : 0;
   const c0 = V.closed[0], c1 = V.closed[1], c2 = V.closed[2];
   for (let s = 0; s < n; s++) {
     for (let k = 0; k < 3; k++) { _sr[k] = V.mR[k]; _sr[3 + k] = V.oR[k]; _sc[k] = V.mC[k]; _sc[3 + k] = V.oC[k]; }
@@ -11878,7 +11925,11 @@ function evalView(V, K, seed, perClaimCourt) {
       const m = rp.length - j; if (m <= 0) { _sr[unkR[j]] = 1; continue; }
       const x = j + ((rng() * m) | 0); const t = rp[j]; rp[j] = rp[x]; rp[x] = t; _sr[unkR[j]] = rp[j];
     }
-    for (let j = 0; j < unkC.length; j++) {
+    if (exSet) {
+      const c2 = exBase.slice(); let j = 0;
+      for (const idx of unkC) if (idx >= 3) { const m = exN - j; if (m <= 0) { _sc[idx] = -1; continue; } const x = j + ((rng() * m) | 0); const t = c2[j]; c2[j] = c2[x]; c2[x] = t; _sc[idx] = c2[j]; j++; }
+      for (const idx of unkC) if (idx < 3) { const m = c2.length - j; if (m <= 0) { _sc[idx] = -1; continue; } const x = j + ((rng() * m) | 0); const t = c2[j]; c2[j] = c2[x]; c2[x] = t; _sc[idx] = c2[j]; j++; }
+    } else for (let j = 0; j < unkC.length; j++) {
       const m = cp.length - j; if (m <= 0) { _sc[unkC[j]] = -1; continue; }
       const x = j + ((rng() * m) | 0); const t = cp[j]; cp[j] = cp[x]; cp[x] = t; _sc[unkC[j]] = cp[j];
     }
@@ -12352,7 +12403,7 @@ const HOOKS = {
   sync: async () => {}, pause: async () => {}, log: () => {}, event: async () => {},
   // human decisions (the UI replaces these)
   turn: null, wispCourt: null, action: null, reveal: null, coldIron: null, blight: null,
-  callBreak: null, pairing: null, move: null,
+  callBreak: null, pairing: null, move: null, keep: null,
   flipFx: null,          // the board's flip animation (the UI sets it)
   ferryFx: null,         // the board's ferry animation (the UI sets it)
   danceFx: null,         // a completed dance lights its Court (the UI sets it)
@@ -12386,7 +12437,7 @@ function newDuel(opts) {
     log: null, pending: [], callDepth: 0, S: newStats(), history: [],
   };
   const rad = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9], rng);
-  // Court cards are not dealt: the Titles are drafted before play (draftTitles). No Princess in the Duel.
+  // Court cards are dealt before play (draftCourts): six to each player, who keeps three.
   for (let i = 0; i < 2; i++) {
     const claims = [];
     for (let k = 0; k < 3; k++) claims.push({ r: rad.pop(), c: -1, sp: false });
@@ -12395,7 +12446,7 @@ function newDuel(opts) {
       i, s: strat(seat.strat || 'Balanced'), claims, human: !!seat.human, name: seat.name,
       fae: [{ t: -1, s: 0, sp: false }, { t: -1, s: 0, sp: false }],
       hand: [1, 2, 3, 4, 5], disc: [], mag: [], won: 0,
-      kR: [[0, 0, 0], [0, 0, 0]], kC: [[-1, -1, -1], [-1, -1, -1]], scryUsed: false,
+      kR: [[0, 0, 0], [0, 0, 0]], kC: [[-1, -1, -1], [-1, -1, -1]], scryUsed: false, deckKnown: [],
     };
     Object.defineProperty(pl, '_S', { value: S, enumerable: false });   // for Princess membership
     S.P.push(pl);
@@ -12407,46 +12458,58 @@ function newDuel(opts) {
   refresh(S);
   return S;
 }
-/* Setup: the twelve Court cards are sorted by Title into four piles (Queens, Kings,
-   Princes, Princesses). Each pile is shuffled face down, so a pile shows its Title but
-   not the Court on any card. Players take the top card of a pile, saying aloud which
-   Title they took: first player 1, second player 2, first player 1, second player 1,
-   first player 1. A player may take only one card from each pile, so each ends with
-   three different Titles. The six cards left over are shuffled as the Court redraw deck. */
-const DRAFT_SEQ = [0, 1, 1, 0, 1, 0];          // 0 = the first player, 1 = the second
-function draftSeq(S) { return (S.draftSeqOverride || DRAFT_SEQ).map(x => (x === 0 ? S.first : 1 - S.first)); }
-/* AI: which Title to take. The House is hidden, so only the Title can be chosen.
-   In AI-vs-AI tests the King was by far the strongest Title (no King: 40% wins, one: 55%),
-   so Thistle takes its King first, then a Queen, then a Princess (see DRAFT_PREF). */
-const DRAFT_PREF = [1, 0, 3, 2];               // King, Queen, Princess, Prince
-function aiDraftPick(S, p, avail, mine) {
-  const pol = p.s.draft || 'greedy';
-  if (pol === 'random') return avail[(S.rng() * avail.length) | 0];
-  const held = mine.map(cT);
-  const fresh = avail.filter(t => !held.includes(t));
-  const pool = pol === 'greedy' || (pol.greedy) ? avail : (fresh.length ? fresh : avail);
-  if (pol === 'distinct') return pool[(S.rng() * pool.length) | 0];
-  const pref = Array.isArray(pol) ? pol : (pol.pref || DRAFT_PREF);
-  return pool.slice().sort((a, b) => pref.indexOf(a) - pref.indexOf(b))[0];
+/* Setup, the draft: the twelve Court cards are shuffled and six dealt to each player. Each
+   keeps three in secret, and neither sees what the other kept. The six returned cards are
+   shuffled to form the Court redraw pile. All a player knows is that the three they returned
+   are in that pile, so the rival's three came from the six they were never dealt. */
+const KEEP_SUBSETS = (() => { const o = []; for (let a = 0; a < 6; a++) for (let b = a + 1; b < 6; b++) for (let c = b + 1; c < 6; c++) o.push([a, b, c]); return o; })();
+function allCourtIds(R) { const ids = []; for (let h = 0; h < 3; h++) for (let t = 0; t < 4; t++) if (t !== 3 || R.princess) ids.push(h * 4 + t); return ids; }
+/* AI: try every three of the six, each with its best face-down card, against every way the
+   rival's three could fall among the cards it never saw. Titles the reckoning can't see
+   (the King's step, the Prince's Wisp) carry a small bonus of their own. */
+function aiKeepPick(S, p, hand) {
+  if (p.s.random || p.s.keepRandom) return shuffle(hand.slice(), S.rng).slice(0, 3);
+  const V = buildView(S, p.i), seed = rseed(S);
+  const unseen = allCourtIds(S.R).filter(id => !hand.includes(id));
+  let best = null, bv = -1e9;
+  for (const sub of KEEP_SUBSETS) {
+    if (sub.some(j => j >= hand.length)) continue;
+    const keep = sub.map(j => hand[j]);
+    let v = -1e9;
+    for (let f = 0; f < 3; f++) {
+      const rest = keep.filter((_, x) => x !== f);
+      let pv = 0;
+      for (const ord of [rest, rest.slice().reverse()]) {
+        const W = cloneView(V);
+        W.mC[0] = ord[0]; W.mC[1] = ord[1]; W.mC[2] = keep[f];
+        W.oC = [-1, -1, -1]; W.courtPool = unseen.slice(); W.oppExcl = null;
+        if (p.s.keepDecl) { W.decO = {}; for (const id of keep) if (cT(id) === 0 || cT(id) === 3) W.decO[id] = 1; }
+        const ev = evalView(W, 24, seed); pv += ev.d[0] + ev.d[1] + ev.d[2];
+      }
+      if (pv / 2 > v) v = pv / 2;
+    }
+    const ts = keep.map(cT);
+    if (ts.includes(1)) v += p.s.keepKing;
+    if (ts.includes(2)) v += p.s.keepPrince;
+    if (v > bv + 1e-9) { bv = v; best = keep; }
+  }
+  return best || hand.slice(0, 3);
 }
-async function draftTitles(S) {
-  const piles = [0, 1, 2, 3].map(t => shuffle([0, 1, 2].map(h => h * 4 + t), S.rng));
-  const picks = [[], []], seen = [];
-  for (const i of draftSeq(S)) {
-    const p = S.P[i];
-    const avail = [0, 1, 2, 3].filter(t => piles[t].length && !picks[i].some(id => cT(id) === t));   // one card per pile each
-    let t;
-    if (isHuman(p) && HOOKS.draft) t = await HOOKS.draft(S, p, { avail, sizes: piles.map(x => x.length), picks: picks.map(x => x.slice()), seen: seen.slice(), seq: draftSeq(S) });
-    else t = aiDraftPick(S, p, avail, picks[i]);
-    if (!avail.includes(t)) t = avail[0];
-    const id = piles[t].pop();
-    picks[i].push(id); seen.push({ i, t });
-    say(S, p.human ? `You take a <b>${TITLE[t]}</b>: the ${cardName(id)}.` : `${nm(p)} takes a <b>${TITLE[t]}</b>.`);
+async function draftCourts(S) {
+  const deck = shuffle(allCourtIds(S.R), S.rng);
+  const n = Math.min(6, deck.length >> 1);
+  const hands = [deck.slice(0, n), deck.slice(n, 2 * n)], left = deck.slice(2 * n), kept = [[], []];
+  for (const p of S.P) {
+    const hand = hands[p.i];
+    let k = isHuman(p) && HOOKS.keep ? await HOOKS.keep(S, p, { cards: hand.slice() }) : aiKeepPick(S, p, hand);
+    if (!Array.isArray(k) || k.length !== 3 || new Set(k).size !== 3 || k.some(id => !hand.includes(id))) k = isHuman(p) ? hand.slice(0, 3) : aiKeepPick(S, p, hand);
+    kept[p.i] = k;
+    p.deckKnown = hand.filter(id => !k.includes(id));
+    say(S, p.human ? `You keep the ${k.map(cardName).join(', ').replace(/, ([^,]*)$/, ' and $1')}.` : `${nm(p)} keeps three of their six Court cards.`);
     if (!isHuman(p)) await pause(S, 650);
   }
-  for (const p of S.P) picks[p.i].forEach((id, k) => { p.claims[k].c = id; });
-  S.courtDeck = shuffle([].concat(...piles), S.rng);
-  S.drafted = picks; S.draftSeen = seen;
+  for (const p of S.P) kept[p.i].forEach((id, k) => { p.claims[k].c = id; });
+  S.courtDeck = shuffle(left.concat(S.P[0].deckKnown, S.P[1].deckKnown), S.rng);
   refresh(S);
   await sync(S, 'claims');
 }
@@ -12861,6 +12924,7 @@ function redrawCourtCard(S, o, k) {
   const old = S.P[o].claims[k].c;
   S.courtDisc.push(old); S.dec[old] = 0;
   S.P[o].claims[k].c = S.courtDeck.pop();
+  { const drawn = S.P[o].claims[k].c; for (const v of S.P) if (v.deckKnown && v.deckKnown.length) v.deckKnown = v.i === o ? v.deckKnown.filter(x => x !== drawn) : []; }
   refill(S, 'courtDeck', 'courtDisc');
   forgetC(S, o, k); refresh(S);
   return true;
@@ -13116,7 +13180,7 @@ async function aiTurn(S, p) {
 
 /* ---------- the game ---------- */
 async function run(S) {
-  await draftTitles(S);
+  await draftCourts(S);
   await setupPairings(S);
   await sync(S, 'start');
   say(S, `${nm(S.P[S.turn])} ${S.P[S.turn].human ? 'dance' : 'dances'} first.`, 'sys');
@@ -13150,8 +13214,8 @@ async function run(S) {
 const api = {
   HOOKS, COURT, TITLE, MAGNAME, cH, cT, L, opp, supply, newDuel, run, liveCourtCards, hasKing, princeWard,
   declarable, doDeclare, doSkip, spendRune, runePower, doFlip, ferry, humanMove, humanMagik, playableMagik,
-  doAction, legalActions, cardName, slotPhrase, refillIfEmpty, canRad, canCourt, say, sync, draftSeq, DRAFT_SEQ, inCourt, PNEXT, liveClaims,
-  draftTitles, setupPairings, doCall,
+  doAction, legalActions, cardName, slotPhrase, refillIfEmpty, canRad, canCourt, say, sync, inCourt, PNEXT, liveClaims,
+  setupPairings, doCall, draftCourts, aiKeepPick, allCourtIds,
 };
 if (typeof module !== 'undefined' && module.exports) module.exports = api;
 if (typeof window !== 'undefined') window.DUEL = api;
@@ -13291,15 +13355,16 @@ function render() {
   }).join('');
   const myTurn = UI.phase === 'turn';
   const F = UI.flags || {};
+  // Not `disabled`: a disabled button gets no hover, and every Rune and card should explain itself.
   const runes = [1, 2, 3, 4, 5].map(v => {
     const has = P0.hand.includes(v);
     const on = myTurn && has && !F.acted;
-    return `<button class="honor drune${has ? '' : ' played'}" data-rune="${v}" ${on ? '' : 'disabled'} title="${runeTip(v)}">${v}</button>`;
+    return `<button class="honor drune${has ? '' : ' spent'}${on ? ' live' : ' disabled'}" data-rune="${v}" aria-label="Rune ${v}">${runeStonesSVG(v)}<span class="numeral">${v}</span><span class="lure">${RUNE_MARKS[v]}</span></button>`;
   }).join('');
   const playable = myTurn ? D.playableMagik(S, P0) : [];
   const mags = P0.mag.map((m, i) => {
     const on = playable.includes(m);
-    return `<button class="btn dmag" data-mag="${m}" ${on ? '' : 'disabled'} title="${magTip(m)}">${D.MAGNAME[m]}</button>`;
+    return `<button class="dmagcard${on ? ' live' : ''}" data-mag="${m}" data-i="${i}" aria-label="${D.MAGNAME[m]}"><svg aria-hidden="true"><use href="#${MAG_ICON[m]}"/></svg><span>${D.MAGNAME[m]}</span></button>`;
   }).join('') || '<span class="dsmall dnomag">No Faerie Magik</span>';
   const canDeclare = myTurn && !F.acted && !F.declared && !F.magikUsed;
   const declK = canDeclare ? D.declarable(S, P0) : [];
@@ -13325,8 +13390,10 @@ function render() {
         </div>
       </div>
     </div>`;
-  hud.querySelectorAll('[data-rune]').forEach(b => b.onclick = () => cmd({ type: 'rune', v: +b.dataset.rune }));
-  hud.querySelectorAll('[data-mag]').forEach(b => b.onclick = () => cmd({ type: 'magik', name: b.dataset.mag }));
+  hud.querySelectorAll('[data-rune].live').forEach(b => b.onclick = () => cmd({ type: 'rune', v: +b.dataset.rune }));
+  hud.querySelectorAll('[data-mag].live').forEach(b => b.onclick = () => cmd({ type: 'magik', name: b.dataset.mag }));
+  hud.querySelectorAll('[data-rune]').forEach(el => attachRichTip(el, () => runeTipFor(+el.dataset.rune)));
+  hud.querySelectorAll('[data-mag]').forEach(el => attachRichTip(el, () => magTipFor(el.dataset.mag, el.classList.contains('live'))));
   hud.querySelectorAll('[data-fae]').forEach(b => b.onclick = () => { if (UI.phase === 'move' && typeof SELECT_DANCER === 'function') SELECT_DANCER(+b.dataset.fae); });
   document.querySelectorAll('#duelhud .dcard, #duelrival .dcard').forEach(el => attachRichTip(el, () => cardTip(+el.dataset.o, +el.dataset.k)));
   hud.querySelectorAll('[data-decl]').forEach(b => b.onclick = e => { e.stopPropagation(); cmd({ type: 'declare', k: +b.dataset.decl }); });
@@ -13356,6 +13423,37 @@ function magTip(m) {
   return ({ WCall: 'Place a Wisp from the supply in an open Court.', Snuff: 'Remove a Wisp from a Court.',
     Lure: 'Move a Wisp from one open Court to another.', Scry: 'Look at one of your own Radiance cards or one of your rival’s Court cards.',
     ColdIron: 'Cancel a Faerie Magik card as it is played.' })[m] || '';
+}
+/* The power glyphs printed on the High Fae Runes, the same marks in the same corner. */
+const RUNE_MARKS = {
+  1: '<svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5" fill="none"/><path d="M9 9 l4 4 M11 13 l2 0 l0 -2"/></svg>',
+  2: '<svg viewBox="0 0 16 16"><ellipse cx="8" cy="11.5" rx="5.2" ry="2.4"/><path d="M3 6 h4 M8 4 l3 2 l-3 2"/></svg>',
+  3: '<svg viewBox="0 0 16 16"><path d="M4 3 h8 v10 h-8 z" fill="none"/><path d="M6 6.5 h4 M6 9 h4 M13 4 a4 4 0 0 1 0 8" fill="none"/></svg>',
+  4: '<svg viewBox="0 0 16 16"><path d="M4 3 h6 v9 h-6 z" fill="none"/><path d="M13 5 l-2.2 2.2 M13 5 l-2.2 -0.2 M13 5 l0.2 2.2 M5.8 6 h2.4 M5.8 8.4 h2.4"/></svg>',
+  5: '<svg viewBox="0 0 16 16"><circle cx="4.5" cy="11" r="2.6"/><path d="M7 8 Q10 3 14 5 M14 5 l-3 .4 M14 5 l-.8 2.6"/></svg>',
+};
+const RUNE_DOES = {
+  1: 'Flip a land stone to its Triskeled side (any Fae on it go home), then move 1.',
+  2: 'Move a Triskeled stone to the outer end of any dance (its Fae ride along), then move 2.',
+  3: 'Move 3, or instead redraw one of your own Court or Radiance cards.',
+  4: `Move 4, or instead make ${RIVAL} redraw one of their Court or Radiance cards.`,
+  5: 'Move 5, or instead lure a Wisp into a different open Court.',
+};
+function runeTipFor(v) {
+  const P0 = me(), has = P0.hand.includes(v), kb = D.hasKing(S, P0) ? S.R.kingSteps : 0;
+  let note = !has ? 'Played. Your Runes come back once all five are played, or when you Skip & reclaim.'
+    : UI.phase === 'turn' && !(UI.flags && UI.flags.acted) ? 'Tap to play it.' : 'In your hand.';
+  if (kb) note += ` Your declared King adds a step: it moves ${v + kb}.`;
+  return { head: `Rune ${v}`, body: RUNE_DOES[v], note };
+}
+/* Faerie Magik glyphs, as on the printed cards and in the Faerie Magik panel. */
+const MAG_ICON = { ColdIron: 'mk-iron', Lure: 'mk-lure', WCall: 'mk-call', Snuff: 'mk-snuff', Scry: 'mk-scry' };
+function magTipFor(m, live) {
+  const note = live ? 'Tap to play it.'
+    : m === 'ColdIron' ? `Kept for answering: you are asked when ${RIVAL} plays Faerie Magik.`
+    : (m === 'Snuff' || m === 'Lure') ? 'Play it on your turn, or when a Court is Called to break the Call.'
+    : 'Play it on your turn.';
+  return { head: D.MAGNAME[m], body: magTip(m), note };
 }
 function cmd(c) { if (UI.resolveCmd) { const r = UI.resolveCmd; UI.resolveCmd = null; r(c); } }
 function waitCmd() { render(); return new Promise(res => { UI.resolveCmd = res; }); }
@@ -13542,35 +13640,66 @@ H.event = async (_, type, d) => {
     location.reload();
   }
 };
-const TPOWER = [
-  '+2 to her Claim at a Call, and she wins ties',
-  '+1 step on every one of your dances',
-  'places a Wisp when declared; no Wisp may be lured out of his Court',
-  'her Claim also counts for the next Court on her card'];
 const PRINCESS_PATH = 'River → Mountain, Forest → River, Mountain → Forest';
-const listCards = ids => ids.map(id => `the <b>${D.cardName(id)}</b>`).join(', ').replace(/, ([^,]*)$/, ' and $1');
-const rivalTitles = seen => seen.filter(x => x.i === 1).map(x => D.TITLE[x.t]);
-H.draft = async (_, p, { avail, sizes, picks, seen, seq }) => {
-  UI.phase = 'setup'; render();
-  const n = seen.length, mine = picks[0], theirs = rivalTitles(seen);
-  let run = 0; for (let j = n; j < seq.length && seq[j] === 0; j++) run++;
-  let desc = '';
-  desc += theirs.length ? `${RIVAL} has: <b>${theirs.join(', ')}</b>.<br>` : '';
-  desc += mine.length ? `You have ${listCards(mine)}.<br>` : '';
-  desc += `Pick ${mine.length + 1} of 3${run > 1 ? ' (two in a row)' : ''}. One card per pile; its Court is hidden until you take it.`;
-  return ask('Choose a Title', desc, avail.map(t => ({
-    label: `${D.TITLE[t]}`,
-    sub: `${TPOWER[t][0].toUpperCase() + TPOWER[t].slice(1)}`,
-    value: t })));
-};
 function cardSub(id) {
   const h = D.cH(id);
   return D.cT(id) === 3 ? `A Claim for the ${cname(h)}; once declared, also the ${cname(D.PNEXT(h))}` : `A Claim for the ${cname(h)}`;
 }
+/* The draft: keep three of the six Court cards you were dealt. */
+function pickKeep(cards) {
+  const id = ++PICK_N;
+  let picked = null, open = true;
+  const res = choose('Keep three Court cards',
+    `You were dealt six. Keep three. The other three go into the Court pile with three of ${RIVAL}’s, and neither of you sees what the other kept.`,
+    [{ label: `<span class="pkmark" data-pk="${id}"></span>`, value: 'ok' }]);
+  const mount = () => {
+    if (!open) return;
+    const mk = document.querySelector(`#opts .pkmark[data-pk="${id}"]`);
+    if (!mk) { requestAnimationFrame(mount); return; }
+    build(q('#opts'));
+  };
+  requestAnimationFrame(mount);
+  return res.then(() => { open = false; return picked; });
+  function build(box) {
+    const [okOpt] = box.querySelectorAll('.opt');
+    box.querySelectorAll('.opt').forEach(b => b.style.display = 'none');
+    const card = (cid, j) => {
+      const h = D.cH(cid), t = D.cT(cid);
+      return `<button class="cpk-card f-court" data-j="${j}" aria-label="${D.cardName(cid)}">
+        <span class="cpk-court" style="--cc:${CCOL[HOUSE_OF[h]]}"><b>${D.COURT[h]}</b><i>${D.TITLE[t]}</i>${t === 3 ? `<em>+ ${D.COURT[D.PNEXT(h)]}</em>` : ''}</span>
+        <span class="cpk-lab">${['+2, wins ties', '+1 step', 'Wisp + ward', 'two Courts'][t]}</span></button>`;
+    };
+    const wrap = document.createElement('div');
+    wrap.className = 'cpk';
+    wrap.innerHTML = `
+      <div class="cpk-row">${cards.slice(0, 3).map((c, j) => card(c, j)).join('')}</div>
+      <div class="cpk-row">${cards.slice(3).map((c, j) => card(c, j + 3)).join('')}</div>
+      <div class="cpk-hint"></div>
+      <div class="cpk-btns"><button class="btn gold cpk-ok" disabled>Keep these three</button></div>`;
+    box.appendChild(wrap);
+    const sel = [], hint = wrap.querySelector('.cpk-hint'), ok = wrap.querySelector('.cpk-ok');
+    const update = () => {
+      wrap.querySelectorAll('.cpk-card').forEach(b => b.classList.toggle('sel', sel.includes(+b.dataset.j)));
+      ok.disabled = sel.length !== 3;
+      hint.textContent = sel.length === 3 ? sel.map(j => D.cardName(cards[j])).join(' · ') : `Choose ${3 - sel.length} more`;
+    };
+    wrap.querySelectorAll('.cpk-card').forEach(b => b.onclick = () => {
+      const j = +b.dataset.j, i = sel.indexOf(j);
+      if (i >= 0) sel.splice(i, 1); else if (sel.length < 3) sel.push(j);
+      update();
+    });
+    if (matchMedia('(hover: hover)').matches) wrap.querySelectorAll('.cpk-card').forEach(el => attachRichTip(el, () => titleTipFor(cards[+el.dataset.j])));
+    ok.onclick = () => { picked = sel.map(j => cards[j]); okOpt.click(); };
+    update();
+  }
+}
+H.keep = async (_, p, { cards }) => {
+  UI.phase = 'setup'; render();
+  return pickKeep(cards);
+};
 H.pairing = async (_, p) => {
   UI.phase = 'setup'; render();
   const cards = p.claims.map(c => c.c), hidden = p.claims[2].r;
-  const theirs = rivalTitles(S.draftSeen || []);
   const desc = `Your face-down Radiance is <b>${hidden}</b>. Which Court card goes behind it? The other two go behind your stands at random.`;
   return ask('Pair your face-down Claim', desc, cards.map((id, j) => ({ label: D.cardName(id), sub: cardSub(id), value: j })));
 };
@@ -13803,7 +13932,7 @@ const DUEL_RULES = `
   <p><b>Claims.</b> Each player has three Claims: a Radiance card with a Court card behind it. A Radiance counts only for its own Court card.</p>
   <p><b>Facing.</b> Two Radiance cards stand facing your rival: they see them, you don’t. The third lies face down: only you see it. You see your own Court cards.</p>
   <h4>SETUP</h4>
-  <p><b>Draft.</b> Sort the twelve Court cards by Title into four face-down piles. Take the top card of a pile, one card per pile, in this order: first player 1, second 2, first 1, second 1, first 1. Picks are announced. The six left over form the Court pile.</p>
+  <p><b>Draft.</b> Shuffle the twelve Court cards and deal six to each player. Each keeps three in secret: neither player sees what the other kept. The six returned cards are shuffled to form the Court pile.</p>
   <p><b>Pair.</b> Deal three Radiance cards each. Choose the Court card behind your face-down Radiance; the other two go behind your stands at random.</p>
   <h4>CALLS</h4>
   <p>You may Call a Court holding <b>6 Wisps</b> after completing a dance, if you hold a Court card for it. The <b>8th Wisp</b> forces a Call. Magik may break a Call by luring or snuffing a Wisp.</p>
@@ -13863,14 +13992,14 @@ async function startDuelTutorial() {
       `Two players. Win <b>two of the three Courts</b>.<p></p>This covers what the Duel changes. Dances, Runes and Wisps work as in High Fae.`, 'Begin')],
     ['The Draft', async () => {
       await tutSeg([
-        { title: 'Choosing Titles',
-          body: `The Court cards lie in four face-down piles: <b>Queens</b>, <b>Kings</b>, <b>Princes</b> and <b>Princesses</b>.<p></p>Take a pile’s top card. Its Court stays hidden until you take it.` },
-        { title: 'The order',
-          body: `${RIVAL} 1, you 2, ${RIVAL} 1, you 1, ${RIVAL} 1.<p></p><b>One card per pile.</b> Every pick is announced.`, next: 'Draft' },
+        { title: 'Six cards, keep three',
+          body: `Each of you is dealt <b>six</b> of the twelve Court cards. Keep <b>three</b>.<p></p>The three you return are shuffled into the Court pile with three of ${RIVAL}’s.` },
+        { title: 'Kept in secret',
+          body: `Neither of you sees what the other kept. All you know is that ${RIVAL}’s three came from the six you were never dealt.`, next: 'Deal' },
       ]);
       if (TUT.skip) return;
       tutHideOverlay();
-      await D.draftTitles(S);
+      await D.draftCourts(S);
     }],
     ['Pairing', async () => {
       await tutSeg([
