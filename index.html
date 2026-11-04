@@ -3474,10 +3474,49 @@ function init3D(mode){
  
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   let t0=0, calling=false, callLight=0, callT=0, camFrom=null, runeLight=0, bandLight=0;
+  /* THE GROUND TREMBLES: the eye shakes in rumbling waves that swell and die away. */
+  let quakeT=-1, quakeDur=0, quakeAmp=0;
+  /* MAGIC BURSTS FORTH: motes thrown up and out from the Triskele, and a ring of light
+     rolling across the board to its rim. Each burst cleans itself up. */
+  const bursts=[];
+  function spawnBurst(){
+    const ring=new THREE.Mesh(new THREE.RingGeometry(.7, 1.25, 96),
+      new THREE.MeshBasicMaterial({color:0xffe6a8, transparent:true, opacity:1, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide, fog:false}));
+    ring.rotation.x=-Math.PI/2; ring.position.y=TRI_TOP+.25; scene.add(ring);
+    const motes=[];
+    for(let i=0;i<110;i++){
+      const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:moteTex, color:(i%4===0)?0xe6c8ff:0xffe3a0, transparent:true, opacity:1,
+        blending:THREE.AdditiveBlending, depthWrite:false, fog:false}));
+      const a=Math.random()*6.283, out=3+Math.random()*10;
+      const m={s:sp, x:Math.cos(a)*.6, y:TRI_TOP+.3, z:Math.sin(a)*.6, vx:Math.cos(a)*out, vy:5+Math.random()*12, vz:Math.sin(a)*out,
+               life:1.4+Math.random()*1.6, age:0, size:.22+Math.random()*.38};
+      sp.scale.setScalar(m.size); sp.position.set(m.x,m.y,m.z); scene.add(sp); motes.push(m);
+    }
+    bursts.push({ring, motes, age:0});
+  }
+  function stepBursts(dt){
+    for(let b=bursts.length-1; b>=0; b--){
+      const B=bursts[b]; B.age+=dt;
+      const rk=Math.min(1, B.age/1.7);
+      B.ring.scale.setScalar(1+rk*12); B.ring.material.opacity=Math.pow(1-rk, 1.3);
+      B.motes.forEach(m=>{
+        m.age+=dt; m.vy-=9*dt; m.vx*=1-.7*dt; m.vz*=1-.7*dt;
+        m.x+=m.vx*dt; m.z+=m.vz*dt; m.y=Math.max(TRI_TOP+.1, m.y+m.vy*dt);
+        const f=Math.max(0, 1-m.age/m.life);
+        m.s.position.set(m.x,m.y,m.z); m.s.material.opacity=f; m.s.scale.setScalar(m.size*(.6+.8*f));
+      });
+      if(B.age>3.4){
+        scene.remove(B.ring); B.ring.geometry.dispose(); B.ring.material.dispose();
+        B.motes.forEach(m=>{ scene.remove(m.s); m.s.material.dispose(); });
+        bursts.splice(b,1);
+      }
+    }
+  }
   function loop(t){
     requestAnimationFrame(loop);
     if(window.__NORENDER) return;          // a headless test harness plays without drawing
     const dt=(t-t0)/1000; t0=t;
+    let quakeOff=null;
     glade.update(t, dt, reduced);
     if(TABLE_MOTES) TABLE_MOTES.step(t, dt*1000);   // seconds -> ms
     if(!reduced){
@@ -3560,6 +3599,18 @@ function init3D(mode){
         const target = calling ? Math.max(.001, Math.sin(t*.001*s.speed + s.phase)) : .001;
         s.m.scale.y += (target - s.m.scale.y)*.18;
       });
+      if(bursts.length) stepBursts(Math.min(dt,.25));   // real time, even on a slow device
+      if(quakeT>=0){
+        quakeT+=Math.min(dt,.25);
+        if(quakeT>quakeDur){ quakeT=-1; }
+        else {
+          const k=quakeT/quakeDur;
+          const env=Math.sin(Math.PI*Math.min(1,k*1.2))*(.55+.45*Math.sin(quakeT*8.5))*(1-.55*k);
+          const a=quakeAmp*Math.max(0,env);
+          quakeOff={x:a*(Math.sin(t*.061)+Math.sin(t*.137))*.5, y:a*.55*(Math.sin(t*.083)+Math.sin(t*.191))*.5,
+                    z:a*(Math.sin(t*.071+1.3)+Math.sin(t*.157))*.5, roll:a*.012*Math.sin(t*.113)};
+        }
+      }
       // the dancers: hover, flutter, and glide when their step is taken
       if(FERRY_FX.length && !window.__FX_MANUAL) stepFerryFx(dt);  // (a test harness may step these by hand)
       if(SCENE && SCENE.pawnList) animateFaeries(ts, dt);
@@ -3594,12 +3645,15 @@ function init3D(mode){
         });
       }
     }
+    // the tremble moves the eye for this frame only, so it can never drift
+    if(quakeOff){ camera.position.x+=quakeOff.x; camera.position.y+=quakeOff.y; camera.position.z+=quakeOff.z; camera.rotation.z+=quakeOff.roll; }
     renderer.render(scene,camera);
+    if(quakeOff){ camera.position.x-=quakeOff.x; camera.position.y-=quakeOff.y; camera.position.z-=quakeOff.z; camera.rotation.z-=quakeOff.roll; }
   }
   requestAnimationFrame(loop);
  
   const standGroup=new THREE.Group(); scene.add(standGroup);
-  SCENE={scene,pawnGroup,nobleGroup,courtHits,redrawTri,tileGroup,tiles:[],ghosts:[],pawnList:[],iconHits:iconHitList, callCrown:()=>{calling=true;}, stoneBeamLayers:STONE_BEAM_LAYERS, stoneBeams:[], callReset:()=>{ calling=false; callT=0; callLight=0; if(camFrom){ cam.phi=camFrom.phi; cam.r=camFrom.r; camFrom=null; placeCam(); } beamMotes.forEach(d=>{ d.s.visible=false; }); }, camera, standGroup};
+  SCENE={scene,pawnGroup,nobleGroup,courtHits,redrawTri,tileGroup,tiles:[],ghosts:[],pawnList:[],iconHits:iconHitList, callCrown:()=>{calling=true;}, quake:(dur, amp)=>{ if(reduced) return; quakeT=0; quakeDur=dur||3.5; quakeAmp=amp||.2; }, burst:()=>{ if(!reduced) spawnBurst(); }, stoneBeamLayers:STONE_BEAM_LAYERS, stoneBeams:[], callReset:()=>{ calling=false; callT=0; callLight=0; if(camFrom){ cam.phi=camFrom.phi; cam.r=camFrom.r; camFrom=null; placeCam(); } beamMotes.forEach(d=>{ d.s.visible=false; }); }, camera, standGroup};
   WISP_TRAIL=makeWispTrail(scene, TEX_MOTE);
 }
  
@@ -6453,6 +6507,13 @@ async function callWindow(caller, houseId, need){
   }
 }
 
+/* THE CALL'S FINALE. As the Triskele's light climbs into the sky, the ground trembles in
+   rumbling waves and magic bursts outward across the board, twice. High Fae's Call and the
+   Duel's last Court share it. (Skipped for players who ask for reduced motion.) */
+function callFinaleFx(){
+  setTimeout(()=>{ try{ if(SCENE && SCENE.quake) SCENE.quake(3.8, .35); if(SCENE && SCENE.burst) SCENE.burst(); }catch(e){} }, 850);
+  setTimeout(()=>{ try{ if(SCENE && SCENE.burst) SCENE.burst(); }catch(e){} }, 2350);
+}
 async function callForThrone(houseId, caller, isCoup){
   /* The current Call always finishes first. Calls triggered while it resolves
      wait in PENDING_CALLS; if this Call fails they resolve in the order they
@@ -6490,6 +6551,8 @@ async function callForThroneInner(houseId, caller, isCoup){
   }
   G.over=true;
   SCENE.callCrown();
+  callFinaleFx();
+  if(NET.role==='host' && NET.inGame){ try{ netAll({type:'fx', kind:'crown'}); }catch(e){} }
   await wait(5200);   // the Triskele's light climbs into the sky before the reveal
   /* The High Fae attend the Call: a declared Queen counts two higher and
      takes ties; a declared Princess belongs to both her Courts. Only patrons
@@ -9872,6 +9935,7 @@ function guestHandle(msg){
   if(msg.type==='fx'){
     if(NET.inGame && msg.kind==='ferry') ferryStoneFx(msg.from, msg.k, msg.to);
     if(NET.inGame && msg.kind==='dance') danceGlow(msg.tr, !!msg.on);
+    if(NET.inGame && msg.kind==='crown'){ try{ if(SCENE && SCENE.callCrown) SCENE.callCrown(); }catch(e){} callFinaleFx(); }
     return; }
   if(msg.type==='state'){ if(NET.inGame){ if(PICK||MOVE) NET.pendingState=msg.g; else applyState(msg.g); } return; }
   if(msg.type==='rpc'){ guestRPC(msg); return; }
@@ -11779,6 +11843,14 @@ const BASE_STRAT = {
   random: false,
   fitSeek: true,        // no live Claim fits an open Court: dig for one (Rune 3) or swap one in (Mountain)
   fitReclaim: true,    // ...and with Rune 3 spent, Skip & Reclaim to have it back next turn
+  declTiming: 'late',   // 'late': a Queen, Princess or Prince declares only once a Call is near ('eval': whenever it looks good)
+  declReach: 0,         // "near": the Court is within this many Wisps of a Call
+  declCost: 0,        // what showing the card costs: the rival learns its Court and can target it
+  declPrince: 'late',
+  declMine: true,       // ...earlier if I can bring her Court to a Call this turn and expect to win it
+  declSure: 0.75,       // ...how sure of winning that Call I must be
+  declRival: true,      // ...or the rival is one dance from Calling it, or could force the 8th Wisp
+  declSwing: 0.2,       // ...and her Title turns that Call from a likely loss into a likely win   // the Prince follows the same rule ('eval': his old one)
   keepKing: 0.6,        // deal-six setup: worth of keeping a King (his step is invisible to the Court reckoning)
   keepPrince: 0.15,     // ...and a Prince (his Wisp and his ward)
   keepDecl: false,      // ...judge kept Queens and Princesses as if declared (tested worse: off)
@@ -12174,6 +12246,13 @@ function chooseAction(G, p, t) {
   return best;
 }
 
+/* How many dances could this player complete on their turn with their best Rune in hand? */
+function dancesWithin(G, q, kb) {
+  const ds = q.fae.map(f => faeDist(G, f)).sort((a, b) => a - b);
+  let best = 0;
+  for (const v of q.hand) { const pts = v + kb; best = Math.max(best, ds[0] <= pts ? (ds[0] + ds[1] <= pts ? 2 : 1) : 0); }
+  return best;
+}
 function faeDist(G, f) { return f.t < 0 ? Math.min(L(G, 0), L(G, 1), L(G, 2)) : L(G, f.t) - f.s; }
 function nextMax(p, used) {
   const h = p.hand.filter(x => x !== used);
@@ -12954,16 +13033,47 @@ function aiDeclarePick(S, p) {
   if (p.s.declare === 'eager') return cands.find(x => cT(x.c.c) === 1) || cands.find(x => cT(x.c.c) === 0) || cands[0];
   const V = buildView(S, p.i), base = rseed(S), ev = evalView(V, p.s.samples, base), pv0 = posValue(V, ev);
   let bv = 0.12, pick = null;
+  const late = p.s.declTiming === 'late';
+  const near = h => !S.closed[h] && S.w[h] >= S.R.callAt - p.s.declReach;
+  /* Earlier than that only when a Call is coming before my next turn begins. */
+  const o = opp(S, p), kbMe = hasKing(S, p) ? S.R.kingSteps : 0, kbOpp = hasKing(S, o) ? S.R.kingSteps : 0;
+  const myDances = dancesWithin(S, p, kbMe), oppDances = dancesWithin(S, o, kbOpp);
+  const myCan = h => {      // I complete a dance, and my unveils and Magik carry the Court to a Call
+    if (!myDances || S.closed[h]) return false;
+    const lureIn = p.mag.includes('Lure') && [0, 1, 2].some(x => x !== h && !S.closed[x] && S.w[x] > 0 && !princeWard(S, x)) ? 1 : 0;
+    return S.w[h] + myDances + p.mag.filter(m => m === 'WCall').length + lureIn >= S.R.callAt;
+  };
+  const oppSoon = h => !S.closed[h] && (      // their Runes show; their Magik is counted but unseen
+    (oppDances > 0 && S.w[h] + 1 >= S.R.callAt) || S.w[h] + oppDances + (o.mag.length ? 1 : 0) >= S.R.forceAt);
   for (const x of cands) {
     const T = cT(x.c.c), H = cH(x.c.c);
+    /* A Queen's +2 and a Princess's second Court count only at a Call, and showing the card
+       tells the rival which Court it is for and hands them a declared Title to steal with a
+       Mountain swap. So hold it until a Call is near. The Prince's ward matters only while
+       his Court is worth guarding; his Wisp only when it brings a Call closer. */
+
+    if (late && T === 2 && p.s.declPrince !== 'eval' && !(near(H) || [0, 1, 2].some(h => !S.closed[h] && S.w[h] + 1 >= S.R.callAt - p.s.declReach + 1 && ev.d[h] > 0.2))) continue;
     let v;
-    if (T === 0 || T === 3) { const W = cloneView(V); W.decO = { [x.c.c]: 1 }; v = posValue(W, evalView(W, p.s.samples, base)) - pv0 - 0.08; }
+    if (T === 0 || T === 3) {
+      const W = cloneView(V); W.decO = { [x.c.c]: 1 };
+      const e2 = evalView(W, p.s.samples, base);
+      v = posValue(W, e2) - pv0 - 0.08;
+      const Hm = T === 0 ? H : PNEXT(H);          // the Court where declaring makes the difference
+      if (late && !near(Hm)) {
+        /* ...and only when counting her Title changes the result: a Call I would not risk
+           without it but will with it, or a Call the rival could make that she turns around. */
+        const mine = p.s.declMine && myCan(Hm) && ev.pw[Hm] < p.s.callThresh && e2.pw[Hm] >= Math.max(p.s.callThresh, p.s.declSure);
+        const theirs = p.s.declRival && oppSoon(Hm) && ev.pw[Hm] < 0.5 && e2.pw[Hm] >= 0.5 && e2.pw[Hm] - ev.pw[Hm] >= p.s.declSwing;
+        if (!mine && !theirs) continue;
+      }
+    }
     else if (T === 1) v = hasKing(S, p) ? -1 : 0.35 - 0.04 * S.nTurns / 2;
     else {
       let bw = -1e9;
       for (let h = 0; h < 3; h++) if (!S.closed[h]) bw = Math.max(bw, ev.d[h] * (wf(S.R, S.w[h] + 1) - wf(S.R, S.w[h])));
       v = bw + (S.w[H] >= S.R.callAt - 2 && ev.d[H] > 0.2 ? 0.25 : 0) - 0.05;
     }
+    if (T !== 1) v -= p.s.declCost;
     if (v > bv) { bv = v; pick = x; }
   }
   return pick;
@@ -13627,19 +13737,31 @@ H.event = async (_, type, d) => {
       const counts = D.inCourt(S, c.c, d.H);
       return `<div class="drevrow${x.p === d.winner ? ' win' : ''}${counts ? '' : ' off'}"><b>${x.p.human ? 'You' : RIVAL}</b>: Radiance <b>${c.r}</b>${qn ? ' +2 (Queen)' : ''}, ${D.cardName(c.c)}${counts ? (D.cH(c.c) !== d.H ? ' (her second Court)' : '') : ' (no claim here)'}</div>`;
     }).join('');
+    if (type === 'courtWon' && d.winner.won >= 2) { UI.finalReveal = { rows, H: d.H }; return; }
     const title = type === 'callFails' ? `The ${cname(d.H)} Call fails` : d.winner.human ? `You win the ${cname(d.H)}!` : `${RIVAL} wins the ${cname(d.H)}`;
     await notice(title, `${rows}<div class="dsmall" style="margin-top:6px">${type === 'callFails' ? `No ${D.COURT[d.H]} Claim: the Court drops to ${S.w[d.H]} Wisps. Both Claims stay.` : 'Both Claims leave the game.'} Courts: you ${me().won}, ${RIVAL} ${ai().won}.</div>`);
   } else if (type === 'gameOver') {
     UI.phase = 'over'; render();
     const won = d.winner && d.winner.human;
+    if (d.winner) await celebrate(won);
+    const fr = UI.finalReveal;
     const r = await ask(won ? 'You are the High Fae!' : d.winner ? `${RIVAL} becomes the High Fae` : 'The night ends undecided',
-      d.exhausted ? (won ? 'No Claims remain; you hold more Courts.' : d.winner ? `No Claims remain; ${RIVAL} holds more Courts.` : 'No Claims remain, and the Courts are even.')
-        : won ? 'You won two of the three Courts.' : d.winner ? `${RIVAL} won two of the three Courts.` : 'The last Court could no longer be won.',
+      (fr ? `<div class="dsmall" style="margin-bottom:4px">The ${cname(fr.H)} is Called:</div>${fr.rows}<div style="margin-top:8px"></div>` : '') +
+      (d.exhausted ? (won ? 'No Claims remain; you hold more Courts.' : d.winner ? `No Claims remain; ${RIVAL} holds more Courts.` : 'No Claims remain, and the Courts are even.')
+        : won ? 'You won two of the three Courts.' : d.winner ? `${RIVAL} won two of the three Courts.` : 'The last Court could no longer be won.'),
       [{ label: 'Duel again', value: 'again' }, { label: 'Main menu', value: 'menu', cls: 'passopt' }]);
     if (r === 'again') { try { sessionStorage.setItem('triskeleDuelAgain', '1'); } catch (e) {} }
     location.reload();
   }
 };
+/* THE FINALE. The new High Fae is named, the Triskele kindles and its light climbs into the
+   sky, and as it rises the ground trembles and magic bursts outward in two waves. */
+async function celebrate(won) {
+  announce(won ? 'You are the High Fae!' : tintRival(`${RIVAL} becomes the High Fae`), true, 4600);
+  try { if (SCENE && SCENE.callCrown) SCENE.callCrown(); } catch (e) {}
+  callFinaleFx();
+  await sleep(5250);
+}
 const PRINCESS_PATH = 'River → Mountain, Forest → River, Mountain → Forest';
 function cardSub(id) {
   const h = D.cH(id);
