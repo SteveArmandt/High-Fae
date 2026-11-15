@@ -1012,6 +1012,20 @@ body.duelmode #banner{display:none !important;}
       </div>
     </div>
     <div class="hr"></div>
+    <!-- ============ MAILING LIST sign-up (posts to Google Form) ============ -->
+    <div style="text-align:center;" id="mlwrap">
+      <div class="small" id="mlask">Interested in hearing about when the game is released?</div>
+      <button class="btn" id="mlopen" style="margin-top:8px;">Join the Mailing List</button>
+      <form id="mlform" novalidate style="display:none; margin-top:8px;">
+        <div style="display:flex; gap:8px; justify-content:center; align-items:stretch; max-width:380px; margin:0 auto;">
+          <input id="mlemail" class="mpinput" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="you@example.com" aria-label="Email address" style="flex:1 1 auto; min-width:0; margin:0;">
+          <button class="btn gold" id="mlsend" type="submit" style="flex:none;">Sign Up</button>
+        </div>
+        <div class="small" id="mlnote" style="margin-top:6px; font-size:11.5px;">Only used to announce the release.</div>
+      </form>
+      <div class="small" id="mlstatus" role="status" aria-live="polite" style="margin-top:6px; min-height:14px; color:var(--ink2);"></div>
+    </div>
+    <div class="hr"></div>
     <div style="text-align:center;">
       <b style="letter-spacing:.12em; font-size:12px;">PLAY WITH FRIENDS</b>
       <div style="display:flex; gap:10px; justify-content:center; margin-top:8px;">
@@ -14198,6 +14212,45 @@ window.addEventListener('DOMContentLoaded', () => {
 window.DUELUI = { start: startDuel, tutorial: () => startDuelTutorial(), state: () => S, ui: UI, cmd, pick: o => pickClaims(o) };
 })();
 
+</script>
+<script>
+/* ============ MAILING LIST: submits the email to a Google Form (responses land in the linked Sheet) ============ */
+(function(){
+  var FORM_URL='https://docs.google.com/forms/d/e/1FAIpQLSfjQOCUaYUTAnf0ACPP5cZ1BAN7bptOmgNYlY5L3K6SbpC9XQ/formResponse';
+  var FIELD='entry.1503025336';
+  var KEY='highfae_mailinglist_joined';
+  var el=function(id){ return document.getElementById(id); };
+  var ask=el('mlask'), open=el('mlopen'), form=el('mlform'), email=el('mlemail'), send=el('mlsend'), status=el('mlstatus');
+  if(!form) return;
+  function joined(){ try{ return localStorage.getItem(KEY)==='1'; }catch(e){ return false; } }
+  function showThanks(){
+    open.style.display='none'; form.style.display='none';
+    ask.textContent="You're on the mailing list. We'll write when the game is released!";
+    status.textContent='';
+  }
+  if(joined()) showThanks();
+  open.onclick=function(){
+    open.style.display='none'; form.style.display='block'; status.textContent='';
+    try{ email.focus(); }catch(e){}
+  };
+  email.addEventListener('input', function(){ status.textContent=''; });
+  form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var v=(email.value||'').trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)){
+      status.textContent='Please enter a valid email address.'; try{ email.focus(); }catch(e){} return;
+    }
+    send.disabled=true; status.textContent='Sending\u2026';
+    var body=new URLSearchParams(); body.append(FIELD, v);
+    fetch(FORM_URL, {method:'POST', mode:'no-cors', body:body}).then(function(){
+      try{ localStorage.setItem(KEY,'1'); }catch(e){}
+      showThanks();
+    }).catch(function(){
+      send.disabled=false;
+      status.textContent="Couldn't reach the sign-up list. Check your connection and try again.";
+    });
+  });
+})();
 </script>
 </body>
 </html>
